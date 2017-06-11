@@ -2,11 +2,8 @@ import org.whispersystems.signalservice.api.push.SignalServiceAddress
 import org.whispersystems.signalservice.api.push.TrustStore
 import org.whispersystems.signalservice.internal.push.PushServiceSocket
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl
-import org.whispersystems.signalservice.internal.util.Base64
 import org.whispersystems.signalservice.internal.util.StaticCredentialsProvider
 import java.io.InputStream
-import java.security.NoSuchAlgorithmException
-import java.security.SecureRandom
 import java.security.Security
 
 fun main(args: Array<String>) {
@@ -47,7 +44,7 @@ fun main(args: Array<String>) {
     /*
      * 52 random bytes.  A 32 byte AES key and a 20 byte Hmac256 key, concatenated.
      */
-    val signalingKey = getSecret(52) // generate new password (won't work)
+    val signalingKey = "<KEY>"
     val credentialsProvider = StaticCredentialsProvider(user, password,
             signalingKey)
 
@@ -80,25 +77,4 @@ fun main(args: Array<String>) {
 
         println("The fingerprint is $fingerprint")
     })
-}
-
-/*
- * Code based on https://github.com/AsamK/signal-cli
- * Licensed under GPL
- */
-val secureRandom : SecureRandom = try {
-    SecureRandom.getInstance("SHA1PRNG")
-} catch (e: NoSuchAlgorithmException) {
-    throw AssertionError(e)
-}
-
-fun getSecretBytes(size: Int): ByteArray {
-    val secret = ByteArray(size)
-    secureRandom.nextBytes(secret)
-    return secret
-}
-
-fun getSecret(size: Int): String {
-    val secret = getSecretBytes(size)
-    return Base64.encodeBytes(secret)
 }
