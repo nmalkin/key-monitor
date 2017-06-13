@@ -31,11 +31,11 @@ dependencies {
     testRuntime "org.jetbrains.spek:spek-junit-platform-engine:1.1.2"
 }
 
-mainClassName = 'KeyLookupKt'
+mainClassName = 'keymonitor.lookup.KeyLookupKt'
 applicationName = 'key-lookup'
 
 task createExtraRunApp(type: CreateStartScripts) {
-    mainClassName = "SignupTaskKt"
+    mainClassName = "keymonitor.signup.SignupTaskKt"
     classpath = startScripts.classpath
     outputDir = startScripts.outputDir
     applicationName = 'signup-task'
