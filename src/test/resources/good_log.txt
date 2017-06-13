@@ -1,0 +1,4 @@
+{"init":true},
+{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:27:52.481Z"},"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310072481}},
+{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:28:42.630Z"},"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310122630}},
+{"done":true}]
