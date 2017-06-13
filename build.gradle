@@ -9,10 +9,6 @@ repositories {
     maven { url "http://dl.bintray.com/jetbrains/spek" }
 }
 
-sourceSets {
-    main.kotlin.srcDirs += "test/main/kotlin"
-}
-
 junitPlatform {
     filters {
         engines {
