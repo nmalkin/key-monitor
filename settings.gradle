@@ -1,2 +1,17 @@
-rootProject.name = 'keymonitor'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            url "http://repo1.maven.org/maven2/"
+        }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == "org.junit.platform.gradle") {
+                useModule("org.junit.platform:junit-platform-gradle-plugin:" + requested.version)
+            }
+        }
+    }
+}
 
+rootProject.name = 'keymonitor'

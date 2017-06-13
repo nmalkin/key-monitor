@@ -1,11 +1,27 @@
 plugins {
     id "application"
     id "org.jetbrains.kotlin.jvm" version "1.1.2-2"
+    id "org.junit.platform.gradle.plugin" version "1.0.0-M4"
 }
 
 repositories {
     mavenCentral()
+    maven { url "http://dl.bintray.com/jetbrains/spek" }
 }
+
+sourceSets {
+    main.kotlin.srcDirs += "test/main/kotlin"
+}
+
+junitPlatform {
+    filters {
+        engines {
+            include "spek"
+        }
+    }
+}
+
+ext.junitJupiterVersion = "5.0.0-M4"
 
 dependencies {
     compile "com.beust:jcommander:1.72"
@@ -13,7 +29,11 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
     compile 'org.bouncycastle:bcprov-jdk15on:1.57'
     compile 'org.whispersystems:signal-service-android:2.5.10'
-    //testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
+    testCompile "org.jetbrains.kotlin:kotlin-test"
+    testCompile "org.jetbrains.spek:spek-api:1.1.2"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+    testRuntime "org.jetbrains.spek:spek-junit-platform-engine:1.1.2"
 }
 
 mainClassName = 'KeyLookupKt'
@@ -27,7 +47,7 @@ task createExtraRunApp(type: CreateStartScripts) {
 }
 
 applicationDistribution.into("bin") {
-    duplicatesStrategy= DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(createExtraRunApp)
     fileMode = 0755
 }
