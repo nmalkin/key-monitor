@@ -1,13 +1,18 @@
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.databind.ObjectMapper
 import keymonitor.PhoneNumber
 import keymonitor.signup.JsonParsingException
 import keymonitor.signup.RegistrationMessage
 import keymonitor.signup.parseJsonFile
+import keymonitor.signup.parseLine
+import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 fun assertParsingFails(parsing: () -> Unit) {
     assertFailsWith(JsonParsingException::class, parsing)
@@ -35,6 +40,49 @@ class JsonParsingTest : Spek({
             it("extracts the email from a message") {
                 val aMessage: RegistrationMessage = messages.take(1)[0]
                 assertEquals("test@example.com", aMessage.email)
+            }
+        }
+    }
+
+    describe("parsing a single line") {
+        val jsonParser = ObjectMapper(JsonFactory())
+        val emailValidator = EmailValidator.getInstance()
+
+        it("accepts init debug statements") {
+            val result = parseLine(jsonParser, emailValidator, "{\"init\":true},")
+            assertNull(result)
+        }
+
+        it("accepts done debug statements") {
+            val result = parseLine(jsonParser, emailValidator, "{\"done\":true}]")
+            assertNull(result)
+        }
+
+        it("correctly parses a message") {
+            val line = """{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:28:42.630Z"},"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310122630}},"""
+            val result = parseLine(jsonParser, emailValidator, line)
+            assertNotNull(result)
+            result!!
+
+            assertEquals(PhoneNumber("+14155550123"), result.phoneNumber)
+            assertEquals("test@example.com", result.email)
+        }
+
+        it("fails if the line isn't JSON") {
+            assertParsingFails {
+                parseLine(jsonParser, emailValidator, "blah blah blah")
+            }
+        }
+
+        it("fails if the JSON is missing fields") {
+            assertParsingFails {
+                val line = """{"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310122630}},"""
+                parseLine(jsonParser, emailValidator, line)
+            }
+
+            assertParsingFails {
+                val line = """{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:28:42.630Z"}},"""
+                parseLine(jsonParser, emailValidator, line)
             }
         }
     }
