@@ -1,0 +1,98 @@
+package keymonitor.signup
+
+import keymonitor.PhoneNumber
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+
+fun main(args: Array<String>) {
+    if (args.size < 2) {
+        throw IllegalArgumentException("usage: $args[0] +8885550123")
+    }
+
+    val serverNumber = PhoneNumber(args[1])
+
+    // The CLI will wait for a few seconds (default: 5) for any new messages; a negative number disables that.
+    val process = Runtime.getRuntime()?.exec(arrayOf("signal-cli", "--username",
+            serverNumber.toString(), "receive",
+            "--timeout", "-1"))
+            ?: throw RuntimeException("failed to launch signal-cli subprocess")
+
+    val stdout: InputStream? = process.inputStream
+    val reader = BufferedReader(InputStreamReader(stdout))
+    val rawLine: String? = reader.readLine()
+
+    var parseState = ParseStates.START
+    var currentFromNumber: PhoneNumber?
+    while (rawLine != null) {
+        val parsedLine = SignalCliLine(rawLine)
+        when (parseState) {
+            ParseStates.START -> {
+                if (parsedLine.type == SignalCliLineType.ENVELOPE) {
+                    currentFromNumber = parsedLine.phoneNumber
+                    parseState = ParseStates.ENVELOPE
+                } else {
+                    throw ParseException(parsedLine, SignalCliLineType.ENVELOPE)
+                }
+            }
+
+            ParseStates.ENVELOPE -> {
+                if(parsedLine.type != SignalCliLineType.TIMESTAMP) {
+                    throw ParseException(parsedLine, SignalCliLineType.TIMESTAMP)
+
+                }
+            }
+        }
+    }
+}
+
+class ParseException : RuntimeException {
+    constructor(line: SignalCliLine, expected: SignalCliLineType) :
+            super("error parsing ${line.contents}: expected ${expected.toString()} but got ${line.type}")
+    }
+}
+
+private enum class ParseStates {
+    START,
+    ENVELOPE,
+    RELAYED_BY,
+    TIMESTAMP,
+    MESSAGE_TIMESTAMP,
+    BODY_START,
+    UNTRUSTED_KEY,
+}
+
+private val ENVELOPE_REGEX = Regex("^Envelope from: (\\+\\d{10,}) \\(device: \\d+\\)$")
+
+enum class SignalCliLineType {
+    ENVELOPE,
+    RELAYED_BY,
+    TIMESTAMP,
+    MESSAGE_TIMESTAMP,
+    BODY_START,
+    UNTRUSTED_KEY,
+    OTHER
+}
+
+class SignalCliLine(val contents: String) {
+    val type: SignalCliLineType =
+            when {
+                contents.matches(ENVELOPE_REGEX) -> SignalCliLineType.ENVELOPE
+                contents.matches(Regex("^Relayed by:")) -> SignalCliLineType.RELAYED_BY
+                contents.matches(Regex("^Timestamp: \\d+")) -> SignalCliLineType.TIMESTAMP
+                contents.matches(Regex("^Message timestamp: \\d+")) -> SignalCliLineType.MESSAGE_TIMESTAMP
+                contents.matches(Regex("^Body: (.*)")) -> SignalCliLineType.BODY_START
+                contents.matches(Regex("^The user’s key is untrusted, either the user has reinstalled Signal or a third party sent this message.$")) -> SignalCliLineType.UNTRUSTED_KEY
+                else -> SignalCliLineType.OTHER
+            }
+
+    val phoneNumber: PhoneNumber?
+        get() {
+            // Only the ENVELOPE line contains the sender's phone number.
+            if (type != SignalCliLineType.ENVELOPE) return null
+
+            val match = ENVELOPE_REGEX.find(contents)
+            val phoneNumber = match?.groups?.get(1)?.value
+            return if (phoneNumber != null) PhoneNumber(phoneNumber) else null
+        }
+}
