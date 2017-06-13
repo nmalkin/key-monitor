@@ -7,6 +7,7 @@ import keymonitor.PhoneNumberBuilder
 import keymonitor.PhoneNumberValidator
 import java.io.*
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.validator.routines.EmailValidator
@@ -64,6 +65,7 @@ fun parseJsonFile(file: File): Collection<RegistrationMessage> {
     // Parse the file, filtering out any lines that don't return anything
     val reader = BufferedReader(FileReader(file))
     val messages: MutableCollection<RegistrationMessage> = reader.lines()
+            // Each line is parsed separately, because log file format is one JSON entry per line
             .map(::parse)
             .filter { it != null }
             .collect(Collectors.toSet())
@@ -72,9 +74,14 @@ fun parseJsonFile(file: File): Collection<RegistrationMessage> {
 }
 
 fun parseLine(mapper: ObjectMapper, emailValidator: EmailValidator, line: String): RegistrationMessage? {
-    // Parse each line separately, because log file format is one JSON entry per line
-    val tree: JsonNode = mapper?.readTree(line)
-            ?: throw JsonParsingException(line, "failed at parsing line as JSON")
+    val tree: JsonNode
+    try {
+        tree = mapper.readTree(line)
+                ?: throw JsonParsingException(line, "failed at parsing line as JSON")
+    } catch (e: JsonParseException) {
+        // Catch library's parse exception and re-throw as our own
+        throw(JsonParsingException(line, e.message!!))
+    }
 
     if (!tree.isObject) throw JsonParsingException(line, "expected object at top level")
 
