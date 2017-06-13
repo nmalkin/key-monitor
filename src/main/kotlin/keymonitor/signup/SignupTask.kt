@@ -8,6 +8,7 @@ import keymonitor.PhoneNumberValidator
 import java.io.*
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.validator.routines.EmailValidator
 import java.util.stream.Collectors
 
@@ -48,11 +49,11 @@ class JsonParsingException(line: String, message: String) : RuntimeException("$m
 
 fun parseJsonFile(file: File): Collection<RegistrationMessage> {
     // Prepare to parse output
-    val factory = JsonFactory()
+    val jsonParser = ObjectMapper(JsonFactory())
     val emailValidator = EmailValidator.getInstance()
     fun parse(line: String): RegistrationMessage? {
         try {
-            return parseLine(factory, emailValidator, line)
+            return parseLine(jsonParser, emailValidator, line)
         } catch (e: JsonParsingException) {
             // Notify about any errors, but don't halt
             System.err.println(e)
@@ -70,9 +71,9 @@ fun parseJsonFile(file: File): Collection<RegistrationMessage> {
     return messages
 }
 
-fun parseLine(factory: JsonFactory, emailValidator: EmailValidator, line: String): RegistrationMessage? {
+fun parseLine(mapper: ObjectMapper, emailValidator: EmailValidator, line: String): RegistrationMessage? {
     // Parse each line separately, because log file format is one JSON entry per line
-    val tree: JsonNode = factory.createParser(line)?.readValueAsTree()
+    val tree: JsonNode = mapper?.readTree(line)
             ?: throw JsonParsingException(line, "failed at parsing line as JSON")
 
     if (!tree.isObject) throw JsonParsingException(line, "expected object at top level")
