@@ -1,6 +1,7 @@
 package keymonitor.signup
 
 import keymonitor.PhoneNumber
+import keymonitor.database.createUser
 import java.io.File
 
 fun run(serverNumber: PhoneNumber) {
@@ -18,6 +19,10 @@ fun run(serverNumber: PhoneNumber) {
     if (process.waitFor() != 0) throw RuntimeException("signal-cli halted with non-zero exit code")
 
     val messages = parseJsonFile(tempFile)
+
+    for (message in messages) {
+        val user = createUser(message.phoneNumber)
+    }
 }
 
 data class RegistrationMessage(val phoneNumber: PhoneNumber, val email: String)
