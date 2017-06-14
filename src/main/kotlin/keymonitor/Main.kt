@@ -19,11 +19,15 @@ class SignupCommand {
     var serverPhoneNumber: PhoneNumber? = null
 }
 
+@Parameters(commandDescription = "Set up the database for Key Monitor")
+class SetupDatabaseCommand
+
 fun main(args: Array<String>) {
     val mainCommand = MainCommand()
     val signupCommand = SignupCommand()
     val commands = JCommander.newBuilder()
             ?.addObject(mainCommand)
+            ?.addCommand("setup-database", SetupDatabaseCommand())
             ?.addCommand("signup", signupCommand)
             ?.build()
             ?: throw RuntimeException("failed to initialize arg parser")
@@ -35,6 +39,7 @@ fun main(args: Array<String>) {
     }
 
     when (commands.parsedCommand) {
+        "setup-database" -> keymonitor.database.setup()
         "signup" -> {
             val serverNumber = signupCommand.serverPhoneNumber ?: throw IllegalArgumentException()
             keymonitor.signup.run(serverNumber)

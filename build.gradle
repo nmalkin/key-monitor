@@ -24,6 +24,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
     compile 'org.bouncycastle:bcprov-jdk15on:1.57'
     compile 'org.whispersystems:signal-service-android:2.5.11'
+    compile "org.xerial:sqlite-jdbc:3.18.0"
     testCompile "org.junit.jupiter:junit-jupiter-api:5.0.0-M4"
     testCompile "org.jetbrains.kotlin:kotlin-test:1.1.2-5"
     testCompile "org.jetbrains.spek:spek-api:1.1.2"
