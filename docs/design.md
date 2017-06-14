@@ -96,7 +96,7 @@ Later, we may look at moving some of the services into AWS Lambda. #devopshipste
 
 # Language & technology choices
 
-Because the unofficial [Signal CLI](https://github.com/AsamK/signal-cli), which we expect to be drawing on, and the official [library for communicating with Signal](https://github.com/WhisperSystems/libsignal-service-java) are written in Java, we plan to use it in our project too.
+Because the unofficial [Signal CLI](https://github.com/AsamK/signal-cli), which we expect to be drawing on, and the official [library for communicating with Signal](https://github.com/WhisperSystems/libsignal-service-java) are written in Java, we plan to use a compatible language.
 
 # External services
 
