@@ -1,26 +1,9 @@
 package keymonitor.signup
 
-import com.beust.jcommander.JCommander
-import com.beust.jcommander.Parameter
 import keymonitor.PhoneNumber
-import keymonitor.PhoneNumberBuilder
-import keymonitor.PhoneNumberValidator
 import java.io.File
 
-class Args {
-    @Parameter(names = arrayOf("--number"), required = true,
-            validateWith = arrayOf(PhoneNumberValidator::class),
-            converter = PhoneNumberBuilder::class,
-            description = "Phone number of the server")
-    var serverPhoneNumber: PhoneNumber? = null
-}
-
-fun main(args: Array<String>) {
-    // Parse program arguments
-    val arguments = Args()
-    JCommander.newBuilder().addObject(arguments).build().parse(*args)
-    val serverNumber = arguments.serverPhoneNumber ?: throw IllegalArgumentException()
-
+fun run(serverNumber: PhoneNumber) {
     // Create temporary file for the CLI to output to
     val tempFile = File.createTempFile("signuptask.signal-cli", ".log")
     tempFile.deleteOnExit()

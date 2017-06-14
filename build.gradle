@@ -31,18 +31,14 @@ dependencies {
     testRuntime "org.jetbrains.spek:spek-junit-platform-engine:1.1.2"
 }
 
-mainClassName = 'keymonitor.lookup.KeyLookupKt'
-applicationName = 'key-lookup'
+mainClassName = 'keymonitor.MainKt'
+applicationName = 'key-monitor'
 
-task createExtraRunApp(type: CreateStartScripts) {
-    mainClassName = "keymonitor.signup.SignupTaskKt"
-    classpath = startScripts.classpath
-    outputDir = startScripts.outputDir
-    applicationName = 'signup-task'
-}
-
-applicationDistribution.into("bin") {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(createExtraRunApp)
-    fileMode = 0755
+// Provide a way for "gradle run" to pass arguments through to the main program
+// Called like this: ./gradlew run -PappArgs="['task', '--flag']"
+// via https://stackoverflow.com/a/29382636
+run {
+    if (project.hasProperty("appArgs")) {
+        args Eval.me(appArgs)
+    }
 }
