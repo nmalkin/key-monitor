@@ -3,6 +3,9 @@ package keymonitor
 import com.beust.jcommander.JCommander
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
+import keymonitor.common.PhoneNumber
+import keymonitor.common.PhoneNumberBuilder
+import keymonitor.common.PhoneNumberValidator
 import keymonitor.database.Database
 
 @Parameters()

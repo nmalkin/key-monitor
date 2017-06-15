@@ -1,6 +1,6 @@
 package keymonitor.signup
 
-import keymonitor.PhoneNumber
+import keymonitor.common.PhoneNumber
 import keymonitor.database.addEmail
 import keymonitor.database.createUser
 import java.io.File

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import keymonitor.PhoneNumber
+import keymonitor.common.PhoneNumber
 import org.apache.commons.validator.routines.EmailValidator
 import java.io.BufferedReader
 import java.io.File

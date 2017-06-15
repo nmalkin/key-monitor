@@ -1,7 +1,7 @@
 package keymonitor.database
 
 
-import keymonitor.PhoneNumber
+import keymonitor.common.PhoneNumber
 import keymonitor.database.Database.connection
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe

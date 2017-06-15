@@ -2,7 +2,7 @@ package keymonitor.signup
 
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.ObjectMapper
-import keymonitor.PhoneNumber
+import keymonitor.common.PhoneNumber
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe

@@ -1,8 +1,6 @@
 package keymonitor.common
 
 import com.beust.jcommander.ParameterException
-import keymonitor.PhoneNumber
-import keymonitor.PhoneNumberValidator
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
