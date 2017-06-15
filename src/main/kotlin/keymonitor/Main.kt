@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
     }
 
     when (commands.parsedCommand) {
-        "setup-database" -> keymonitor.database.setup()
+        "setup-database" -> keymonitor.database.setup(verbose = true)
         "signup" -> {
             val serverNumber = signupCommand.serverPhoneNumber ?: throw IllegalArgumentException()
             keymonitor.signup.run(serverNumber)

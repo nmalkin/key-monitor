@@ -17,13 +17,13 @@ private val TABLES = listOf(
  * Note that we use CREATE TABLE IF EXISTS, so any changes will not be applied automatically.
  * i.e., this doesn't do migrations
  */
-fun setup() {
+fun setup(verbose: Boolean = false) {
     val statement = Database.connection.createStatement()
 
     for (table in TABLES) {
-        println(table)
+        if(verbose) println(table)
         statement.executeUpdate(table)
     }
 
-    println("Done!")
+    if(verbose) println("Done!")
 }
