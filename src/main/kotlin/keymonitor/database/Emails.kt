@@ -26,7 +26,7 @@ val CREATE_EMAIL_TABLE =
         )
     """
 
-private val INSERT_EMAIL = "INSERT INTO emails VALUES(null, ?, ?, ?, ?, ?)"
+private val INSERT_EMAIL = "INSERT INTO emails VALUES(null, ?, ?, ?, ?)"
 
 /**
  * Insert email into the database, associating it with given user.
