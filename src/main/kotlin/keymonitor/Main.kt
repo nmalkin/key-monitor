@@ -3,6 +3,7 @@ package keymonitor
 import com.beust.jcommander.JCommander
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
+import keymonitor.database.Database
 
 @Parameters()
 class MainCommand {
@@ -47,4 +48,7 @@ fun main(args: Array<String>) {
         else -> commands.usage()
     }
 
+    // By this point, we're done with any commands and ready to exit,
+    // so close any lingering database connections
+    Database.closeConnection()
 }
