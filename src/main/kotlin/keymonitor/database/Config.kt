@@ -8,7 +8,8 @@ import java.sql.SQLException
 object Database {
     internal val DEFAULT_DB_FILE = "database.sqlite"
     /**
-     * The file backing our SQLite database.
+     * The path to the file backing our SQLite database
+     *
      * You can change it if you don't want to use the default one;
      * if you do, any existing connection will be closed.
      */
@@ -24,7 +25,8 @@ object Database {
     private var _connection: Connection? = null
 
     /**
-     * A Connection to the database.
+     * A Connection to the database
+     *
      * If one doesn't exist at access-time, it will be created.
      * Otherwise, an existing one will be returned.
      */
@@ -39,7 +41,7 @@ object Database {
         }
 
     /**
-     * Close the connection and remove references to the underlying object.
+     * Close the connection and remove references to the underlying object
      */
     fun closeConnection() {
         _connection?.close()

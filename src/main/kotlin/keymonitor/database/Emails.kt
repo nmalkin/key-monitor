@@ -14,7 +14,7 @@ data class Email(val id: Int,
                  val status: EmailStatus,
                  val unsubscribeToken: String)
 
-val CREATE_EMAIL_TABLE =
+internal val CREATE_EMAIL_TABLE =
         """CREATE TABLE IF NOT EXISTS emails (
            id INTEGER PRIMARY KEY,
            user INTEGER NOT NULL,
