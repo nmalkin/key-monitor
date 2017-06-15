@@ -21,6 +21,7 @@ junitPlatform {
 dependencies {
     compile "com.beust:jcommander:1.72"
     compile 'commons-validator:commons-validator:1.6'
+    compile "org.jetbrains.kotlin:kotlin-reflect"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
     compile 'org.bouncycastle:bcprov-jdk15on:1.57'
     compile 'org.whispersystems:signal-service-android:2.5.11'
