@@ -7,7 +7,7 @@ val TABLES = listOf(
 )
 
 fun setup() {
-    val statement = connection.createStatement()
+    val statement = Database.connection.createStatement()
 
     for (table in TABLES) {
         println(table)

@@ -22,7 +22,7 @@ private val INSERT_USER = "INSERT INTO users VALUES (null, ?, ?)"
 
 fun createUser(number: PhoneNumber): User {
     // Prepare statement
-    val statement = connection.prepareStatement(INSERT_USER)
+    val statement = Database.connection.prepareStatement(INSERT_USER)
     statement.setString(1, number.toString())
     statement.setString(2, UserStatus.ACTIVE.name)
 

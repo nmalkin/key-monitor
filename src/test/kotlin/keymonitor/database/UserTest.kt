@@ -1,6 +1,7 @@
 package keymonitor.database
 
 import keymonitor.PhoneNumber
+import keymonitor.database.Database.connection
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -19,7 +20,7 @@ class UserTest : Spek({
         beforeGroup {
             // Set up a new database for testing
             tempFile = File.createTempFile("testing-database", ".sqlite")
-            DB_FILE = tempFile!!.absolutePath
+            Database.file = tempFile!!.absolutePath
             setup()
         }
 
@@ -65,6 +66,7 @@ class UserTest : Spek({
 
         afterGroup {
             // Clean up the testing database
+            Database.closeConnection()
             tempFile?.delete()
         }
     }

@@ -35,7 +35,7 @@ private val INSERT_EMAIL = "INSERT INTO emails VALUES(null, ?, ?, ?, ?)"
  */
 fun addEmail(user: User, email: String): Email {
     // Prepare statement
-    val statement = connection.prepareStatement(INSERT_EMAIL)
+    val statement = Database.connection.prepareStatement(INSERT_EMAIL)
     statement.setInt(1, user.id)
     statement.setString(2, email)
     statement.setString(3, EmailStatus.ACTIVE.name)
