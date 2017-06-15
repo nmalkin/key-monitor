@@ -5,7 +5,8 @@ import java.sql.DriverManager
 import java.sql.SQLException
 
 
-val DB_FILE = "database.sqlite"
+val DEFAULT_DB_FILE = "database.sqlite"
+var DB_FILE = DEFAULT_DB_FILE
 
 val connection: Connection by lazy {
     DriverManager.getConnection("jdbc:sqlite:${DB_FILE}")
