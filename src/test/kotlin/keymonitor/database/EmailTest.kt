@@ -1,8 +1,7 @@
-package database
+package keymonitor.database
 
 
 import keymonitor.PhoneNumber
-import keymonitor.database.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -13,8 +12,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-val phoneNumber = PhoneNumber("+18885550123")
-val address = "test@example.com"
+private val phoneNumber = PhoneNumber("+18885550123")
+private val address = "test@example.com"
 
 class EmailTest : Spek({
     describe("an email in the database") {

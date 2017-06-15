@@ -1,13 +1,13 @@
+package keymonitor.signup
+
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import keymonitor.PhoneNumber
-import keymonitor.signup.JsonParsingException
-import keymonitor.signup.RegistrationMessage
-import keymonitor.signup.parseJsonFile
-import keymonitor.signup.parseLine
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

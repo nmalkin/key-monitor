@@ -1,5 +1,5 @@
-import keymonitor.common.encodeBytesAsHex
-import keymonitor.common.getRandomHex
+package keymonitor.common
+
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it

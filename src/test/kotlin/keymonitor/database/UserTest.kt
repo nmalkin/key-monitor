@@ -1,5 +1,6 @@
+package keymonitor.database
+
 import keymonitor.PhoneNumber
-import keymonitor.database.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -10,7 +11,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-val phoneNumber = PhoneNumber("+18885550123")
+private val phoneNumber = PhoneNumber("+18885550123")
 
 class UserTest : Spek({
     describe("a user in the database") {
