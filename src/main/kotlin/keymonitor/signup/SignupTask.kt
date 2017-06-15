@@ -1,6 +1,7 @@
 package keymonitor.signup
 
 import keymonitor.PhoneNumber
+import keymonitor.database.addEmail
 import keymonitor.database.createUser
 import java.io.File
 
@@ -22,6 +23,7 @@ fun run(serverNumber: PhoneNumber) {
 
     for (message in messages) {
         val user = createUser(message.phoneNumber)
+        addEmail(user, message.email)
     }
 }
 

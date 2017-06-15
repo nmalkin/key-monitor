@@ -18,7 +18,7 @@ val CREATE_USER_TABLE =
           )
         """
 
-val INSERT_USER = "INSERT INTO users VALUES (null, ?, ?)"
+private val INSERT_USER = "INSERT INTO users VALUES (null, ?, ?)"
 
 fun createUser(number: PhoneNumber): User {
     // Prepare statement
