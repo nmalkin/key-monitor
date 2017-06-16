@@ -21,12 +21,10 @@ fun run(serverNumber: PhoneNumber) {
 
     val messages = parseJsonFile(tempFile)
 
-    for (message in messages) {
-        val user = createUser(message.phoneNumber)
-        addEmail(user, message.email)
+    for ((phoneNumber, email) in messages) {
+        val user = createUser(phoneNumber)
+        addEmail(user, email)
     }
 }
 
 data class RegistrationMessage(val phoneNumber: PhoneNumber, val email: String)
-
-
