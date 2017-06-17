@@ -3,12 +3,16 @@ package keymonitor.common
 import kotlin.reflect.KProperty
 
 object CONFIGS {
+    /** The URL of the unsubscribe server */
+    var UNSUBSCRIBE_SERVER: String by Conf("http://example.com/")
     /** The email address from which the app's communication is coming */
-    val EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
+    var EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
     /** The email domain, as used by the Mailgun API */
-    val EMAIL_DOMAIN: String by Conf()
+    var EMAIL_DOMAIN: String by Conf()
+    /** The base URL of the Mailgun API */
+    var MAILGUN_URL: String by Conf("https://api.mailgun.net/")
     /** Mailgun API key */
-    val MAILGUN_API_KEY: String by Conf()
+    var MAILGUN_API_KEY: String by Conf()
 }
 
 /** A [delegate class](https://kotlinlang.org/docs/reference/delegated-properties.html)
