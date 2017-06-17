@@ -16,9 +16,9 @@ class PhoneNumberTest : Spek({
     describe("a phone number") {
         on("creation") {
             it("throws an exception if initialized with invalid number") {
-                assertFailsWith(IllegalArgumentException::class, {
+                assertFailsWith<IllegalArgumentException> {
                     PhoneNumber(badNumber)
-                })
+                }
             }
 
             it("doesn't do that if given a good number") {
@@ -30,9 +30,9 @@ class PhoneNumberTest : Spek({
 
     describe("the JCommander validator") {
         it("throws a ParameterException for bad numbers") {
-            assertFailsWith(ParameterException::class, {
+            assertFailsWith<ParameterException> {
                 PhoneNumberValidator().validate("dummy", badNumber)
-            })
+            }
         }
     }
 })

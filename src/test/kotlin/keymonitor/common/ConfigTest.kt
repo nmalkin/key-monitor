@@ -30,9 +30,9 @@ class ConfigTest : Spek({
                     var UNLIKELY_ENVIRONMENT_VARIABLE_NAME: String by Conf()
                 }
 
-                assertFailsWith(RuntimeException::class, {
+                assertFailsWith<RuntimeException> {
                     sampleConfig.UNLIKELY_ENVIRONMENT_VARIABLE_NAME
-                })
+                }
             }
 
             it("uses a default if one is provided") {
