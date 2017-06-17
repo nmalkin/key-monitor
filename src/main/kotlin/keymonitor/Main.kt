@@ -10,7 +10,7 @@ import keymonitor.database.Database
 
 @Parameters()
 class MainCommand {
-    @Parameter(names = arrayOf("-h", "--help"), help = true, description = "Displays this help text")
+    @Parameter(names = arrayOf("-h", "--help"), help = true, description = "Display this help text")
     var help: Boolean = false
 }
 
