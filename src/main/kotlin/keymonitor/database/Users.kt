@@ -46,3 +46,22 @@ fun createUser(number: PhoneNumber): User {
     // Set up a new User object
     return User(id, number, UserStatus.ACTIVE)
 }
+
+private val GET_USER = "SELECT * FROM users WHERE phone = ?"
+
+/**
+ * Retrieve user with specified phone number
+ *
+ * @return the user in the database with given number, or null if one does not exist
+ */
+fun getUser(number: PhoneNumber): User? {
+    val statement = Database.connection.prepareStatement(GET_USER)
+    statement.setString(1, number.toString())
+
+    val result = statement.executeQuery()
+    if (!result.next()) return null
+
+    return User(result.getInt("id"),
+            number,
+            UserStatus.valueOf(result.getString("account_status")))
+}

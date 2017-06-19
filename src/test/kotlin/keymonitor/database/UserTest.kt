@@ -64,6 +64,15 @@ class UserTest : Spek({
             }
         }
 
+        on("getting a user") {
+            it("returns the right one") {
+                val user = getUser(phoneNumber)
+                assertNotNull(user)
+                assertEquals(1, user!!.id)
+                assertEquals(UserStatus.ACTIVE, user!!.status)
+            }
+        }
+
         afterGroup {
             // Clean up the testing database
             Database.closeConnection()
