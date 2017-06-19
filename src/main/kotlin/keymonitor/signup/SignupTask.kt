@@ -55,8 +55,8 @@ fun run(serverNumber: PhoneNumber) {
 
         // Send confirmation message
         val unsubscribeLink = CONFIGS.UNSUBSCRIBE_SERVER + "unsubscribe?t=" + storedEmail.unsubscribeToken
-        val message = REGISTRATION_MESSAGE.format(message.phoneNumber, unsubscribeLink)
-        sendMessage(storedEmail.email, REGISTRATION_SUBJECT, message)
+        val text = REGISTRATION_MESSAGE.format(message.phoneNumber, unsubscribeLink)
+        sendMessage(storedEmail.email, REGISTRATION_SUBJECT, text)
     }
 }
 
