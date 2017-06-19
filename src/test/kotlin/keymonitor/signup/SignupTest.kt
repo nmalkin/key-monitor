@@ -97,7 +97,7 @@ class SignupTest : Spek({
 
             it("marks the user's existing email address as having been replaced") {
                 val result = Database.connection.createStatement()
-                        .executeQuery("SELECT email_status FROM emails WHERE email=$email")
+                        .executeQuery("SELECT email_status FROM emails WHERE email='$email'")
                 assertTrue(result.next())
                 assertEquals(EmailStatus.REPLACED.name, result.getString("email_status"))
             }
@@ -127,7 +127,7 @@ class SignupTest : Spek({
 
             it("marks the user's current email address as having been replaced") {
                 val result = Database.connection.createStatement()
-                        .executeQuery("SELECT email_status FROM emails WHERE email=$email2")
+                        .executeQuery("SELECT email_status FROM emails WHERE email='$email2'")
                 assertTrue(result.next())
                 assertEquals(EmailStatus.REPLACED.name, result.getString("email_status"))
                 assertTrue(result.next())
