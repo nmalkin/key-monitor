@@ -10,6 +10,7 @@ import org.jetbrains.spek.api.dsl.on
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
@@ -89,6 +90,26 @@ class EmailTest : Spek({
                 }
 
                 assertEquals(tokens.size, tokens.distinct().size)
+            }
+        }
+
+        on("retrieving an email") {
+            // Clear the database, because the tests above left it in an invalid state
+            connection.createStatement().executeUpdate("DELETE FROM emails WHERE user = 1")
+            // TODO: cleaner to flush the entire database
+
+            addEmail(user!!, address)
+
+            it("returns the right one") {
+                val email = getEmail(user!!)
+                assertNotNull(email)
+                assertEquals(7, email!!.id)
+                assertEquals(EmailStatus.ACTIVE, email!!.status)
+            }
+
+            it("returns null if it doesn't exist") {
+                val fakeUser = User(9, phoneNumber, UserStatus.ACTIVE)
+                assertNull(getEmail(fakeUser))
             }
         }
 

@@ -54,3 +54,30 @@ fun addEmail(user: User, email: String): Email {
     // Set up a new Email object
     return Email(id, user, email, EmailStatus.ACTIVE, unsubscribeToken)
 }
+
+private val GET_EMAIL = "SELECT * FROM emails WHERE user = ? AND email_status = '${EmailStatus.ACTIVE.name}'"
+
+/**
+ * Look up the given user's email
+ *
+ * @param user the user to look up
+ * @return the user's active email, or null if it doesn't exist
+ * @throws RuntimeException if there are multiple active emails (this shouldn't happen)
+ */
+fun getEmail(user: User): Email? {
+    val statement = Database.connection.prepareStatement(GET_EMAIL)
+    statement.setInt(1, user.id)
+
+    val result = statement.executeQuery()
+    if (!result.next()) return null
+
+    val email = Email(result.getInt("id"),
+            user,
+            result.getString("email"),
+            EmailStatus.ACTIVE,
+            result.getString("unsubscribe_token"))
+
+    if (result.next()) throw RuntimeException("more than one active email found for user ${user.id}")
+
+    return email
+}
