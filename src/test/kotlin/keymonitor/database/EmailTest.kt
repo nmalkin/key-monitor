@@ -101,7 +101,7 @@ class EmailTest : Spek({
             addEmail(user!!, address)
 
             it("returns the right one") {
-                val email = getEmail(user!!)
+                val email = getActiveEmail(user!!)
                 assertNotNull(email)
                 email!!
                 assertEquals(7, email.id) // TODO: it's hacky and brittle to rely on this specific ID
@@ -110,13 +110,13 @@ class EmailTest : Spek({
 
             it("returns null if it doesn't exist") {
                 val fakeUser = User(9, phoneNumber, UserStatus.ACTIVE)
-                assertNull(getEmail(fakeUser))
+                assertNull(getActiveEmail(fakeUser))
             }
         }
 
         on("updating an email status") {
             it("changes the value in the database") {
-                val email = getEmail(user!!)!!
+                val email = getActiveEmail(user!!)!!
                 email.status = EmailStatus.UNSUBSCRIBED
                 email.save()
 

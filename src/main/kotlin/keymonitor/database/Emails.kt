@@ -62,13 +62,18 @@ fun addEmail(user: User, email: String): Email {
 private val GET_EMAIL = "SELECT * FROM emails WHERE user = ? AND email_status = '${EmailStatus.ACTIVE.name}'"
 
 /**
- * Look up the given user's email
+ * Look up and return the given user's *active* email
+ *
+ * An active email is one with a status of EmailStatus.ACTIVE
+ *
+ * A user can have zero active emails (for example, if they unsubscribed), or one active one.
+ * There should never be more than one. (If there is, an exception is thrown.)
  *
  * @param user the user to look up
  * @return the user's active email, or null if it doesn't exist
  * @throws RuntimeException if there are multiple active emails (this shouldn't happen)
  */
-fun getEmail(user: User): Email? {
+fun getActiveEmail(user: User): Email? {
     val statement = Database.connection.prepareStatement(GET_EMAIL)
     statement.setInt(1, user.id)
 
