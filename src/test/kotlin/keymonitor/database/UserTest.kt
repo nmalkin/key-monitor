@@ -9,6 +9,7 @@ import org.jetbrains.spek.api.dsl.on
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
@@ -70,6 +71,10 @@ class UserTest : Spek({
                 assertNotNull(user)
                 assertEquals(1, user!!.id)
                 assertEquals(UserStatus.ACTIVE, user!!.status)
+            }
+
+            it("returns null if it doesn't exist") {
+                assertNull(getUser(PhoneNumber("+18885550000")))
             }
         }
 
