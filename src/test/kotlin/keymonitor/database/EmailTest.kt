@@ -96,7 +96,7 @@ class EmailTest : Spek({
         on("retrieving an email") {
             // Clear the database, because the tests above left it in an invalid state
             connection.createStatement().executeUpdate("DELETE FROM emails WHERE user = 1")
-            // TODO: cleaner to flush the entire database
+            // TODO: it may be cleaner to flush the entire database before starting these tests
 
             addEmail(user!!, address)
 
@@ -104,13 +104,26 @@ class EmailTest : Spek({
                 val email = getEmail(user!!)
                 assertNotNull(email)
                 email!!
-                assertEquals(7, email.id)
+                assertEquals(7, email.id) // TODO: it's hacky and brittle to rely on this specific ID
                 assertEquals(EmailStatus.ACTIVE, email.status)
             }
 
             it("returns null if it doesn't exist") {
                 val fakeUser = User(9, phoneNumber, UserStatus.ACTIVE)
                 assertNull(getEmail(fakeUser))
+            }
+        }
+
+        on("updating an email status") {
+            it("changes the value in the database") {
+                val email = getEmail(user!!)!!
+                email.status = EmailStatus.UNSUBSCRIBED
+                email.save()
+
+                val result = connection.createStatement()
+                        .executeQuery("SELECT email_status FROM emails WHERE id = ${email.id}")
+                assertTrue(result.next())
+                assertEquals(email.status, EmailStatus.valueOf(result.getString("email_status")))
             }
         }
 

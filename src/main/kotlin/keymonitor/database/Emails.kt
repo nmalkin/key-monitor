@@ -7,11 +7,15 @@ import java.util.*
 /** Enum representing whether the user wants to receive messages at this address. */
 enum class EmailStatus { ACTIVE, REPLACED, UNSUBSCRIBED }
 
-/** Represents an email address record in the database. */
+/**
+ * Represents an email address record in the database
+ *
+ * The `status` of the address can be changed; all other fields are immutable.
+ */
 data class Email(val id: Int,
                  val user: User,
                  val email: String,
-                 val status: EmailStatus,
+                 var status: EmailStatus,
                  val unsubscribeToken: String)
 
 internal val CREATE_EMAIL_TABLE =
@@ -80,4 +84,22 @@ fun getEmail(user: User): Email? {
     if (result.next()) throw RuntimeException("more than one active email found for user ${user.id}")
 
     return email
+}
+
+private val UPDATE_EMAIL = "UPDATE emails SET email_status = ? WHERE id = ?"
+
+/**
+ * Saves the current values of the Email object to the database
+ *
+ * As `status` is currently the only mutable field, it's the only one that is updated.
+ *
+ * @throws RuntimeException if the row to update is missing
+ */
+fun Email.save() {
+    val statement = Database.connection.prepareStatement(UPDATE_EMAIL)
+    statement.setString(1, this.status.name)
+    statement.setInt(2, this.id)
+
+    val rowsAffected = statement.executeUpdate()
+    if (rowsAffected != 1) throw RuntimeException("couldn't find the email I was supposed to update")
 }
