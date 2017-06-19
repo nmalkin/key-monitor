@@ -1,12 +1,12 @@
 package keymonitor.database
 
+import keymonitor.common.CONFIGS.DEFAULT_DB_FILE
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 
 /** Singleton providing database configuration and access */
 object Database {
-    internal val DEFAULT_DB_FILE = "database.sqlite"
     /**
      * The path to the file backing our SQLite database
      *

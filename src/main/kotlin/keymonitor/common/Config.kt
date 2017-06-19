@@ -3,6 +3,13 @@ package keymonitor.common
 import kotlin.reflect.KProperty
 
 object CONFIGS {
+    /**
+     * The path to the file used by the SQLite database
+     *
+     * To change this value after start-up (which you can do),
+     * you need to modify the keymonitor.database.Database.file * property directly.
+     */
+    val DEFAULT_DB_FILE: String by Conf("database.sqlite")
     /** The URL of the unsubscribe server */
     var UNSUBSCRIBE_SERVER: String by Conf("http://example.com/")
     /** The email address from which the app's communication is coming */
