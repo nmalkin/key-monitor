@@ -103,8 +103,9 @@ class EmailTest : Spek({
             it("returns the right one") {
                 val email = getEmail(user!!)
                 assertNotNull(email)
-                assertEquals(7, email!!.id)
-                assertEquals(EmailStatus.ACTIVE, email!!.status)
+                email!!
+                assertEquals(7, email.id)
+                assertEquals(EmailStatus.ACTIVE, email.status)
             }
 
             it("returns null if it doesn't exist") {
