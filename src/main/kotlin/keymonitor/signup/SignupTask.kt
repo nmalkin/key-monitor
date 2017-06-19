@@ -3,9 +3,7 @@ package keymonitor.signup
 import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
 import keymonitor.common.sendMessage
-import keymonitor.database.Email
-import keymonitor.database.addEmail
-import keymonitor.database.createUser
+import keymonitor.database.*
 import java.io.File
 
 private val REGISTRATION_SUBJECT = "Welcome to Key Monitor!"
@@ -63,14 +61,32 @@ fun run(serverNumber: PhoneNumber) {
 /**
  * Update database with newly received registration message
  *
- * Currently, this means storing the new user and their email in the database.
- * TODO: what if the number already exists?
+ * - If the user is new, store them and their email in the database.
+ * - If the user already exists, invalidate their current email, and store the new one.
+ * - If the user already exists and so does the email, treat the new email like it's new.
+ *     This is easiest, but may not be ideal;
+ *     for example, it will result in duplicate emails being sent.
+ *     TODO: decide if we actually want it to behave this way
  */
 internal fun processRegistration(registration: RegistrationMessage): Email {
     val (phoneNumber, email) = registration
-    val user = createUser(phoneNumber)
-    val storedEmail = addEmail(user, email)
-    return storedEmail
+    var user = getUser(phoneNumber)
+
+    if (user == null) {
+        // This is a new user. Save them to the database.
+        user = createUser(phoneNumber)
+    } else {
+        // This user already exists. Do they have an active email?
+        val currentEmail = getActiveEmail(user)
+        if (currentEmail != null) {
+            // The active email should be deactivated; it will be replaced with the new one.
+            currentEmail.status = EmailStatus.REPLACED
+            currentEmail.save()
+        }
+    }
+
+    val newEmail = addEmail(user, email)
+    return newEmail
 }
 
 data class RegistrationMessage(val phoneNumber: PhoneNumber, val email: String)
