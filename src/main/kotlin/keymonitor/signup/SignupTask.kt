@@ -3,6 +3,7 @@ package keymonitor.signup
 import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
 import keymonitor.common.sendMessage
+import keymonitor.database.Email
 import keymonitor.database.addEmail
 import keymonitor.database.createUser
 import java.io.File
@@ -48,18 +49,28 @@ fun run(serverNumber: PhoneNumber) {
     val messages = parseJsonFile(tempFile)
 
     // Process each message
-    for ((phoneNumber, email) in messages) {
-        // TODO: what if the number already exists?
-
+    messages.forEach { message ->
         // Store the new user in the database
-        val user = createUser(phoneNumber)
-        val storedEmail = addEmail(user, email)
+        val storedEmail = processRegistration(message)
 
         // Send confirmation message
         val unsubscribeLink = CONFIGS.UNSUBSCRIBE_SERVER + "unsubscribe?t=" + storedEmail.unsubscribeToken
-        val message = REGISTRATION_MESSAGE.format(phoneNumber, unsubscribeLink)
-        sendMessage(email, REGISTRATION_SUBJECT, message)
+        val message = REGISTRATION_MESSAGE.format(message.phoneNumber, unsubscribeLink)
+        sendMessage(storedEmail.email, REGISTRATION_SUBJECT, message)
     }
+}
+
+/**
+ * Update database with newly received registration message
+ *
+ * Currently, this means storing the new user and their email in the database.
+ * TODO: what if the number already exists?
+ */
+internal fun processRegistration(registration: RegistrationMessage): Email {
+    val (phoneNumber, email) = registration
+    val user = createUser(phoneNumber)
+    val storedEmail = addEmail(user, email)
+    return storedEmail
 }
 
 data class RegistrationMessage(val phoneNumber: PhoneNumber, val email: String)
