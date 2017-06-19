@@ -5,7 +5,7 @@ import java.sql.SQLException
 import java.util.*
 
 /** Enum representing whether the user wants to receive messages at this address. */
-enum class EmailStatus { ACTIVE, UNSUBSCRIBED }
+enum class EmailStatus { ACTIVE, REPLACED, UNSUBSCRIBED }
 
 /** Represents an email address record in the database. */
 data class Email(val id: Int,
