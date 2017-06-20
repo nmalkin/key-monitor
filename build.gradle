@@ -7,7 +7,9 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url "http://dl.bintray.com/jetbrains/spek" }
+    maven { url "https://dl.bintray.com/jetbrains/spek" }
+    maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+    maven { url "https://dl.bintray.com/kotlin/ktor" }
 }
 
 junitPlatform {
@@ -24,6 +26,7 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:3.8.1"
     compile "org.jetbrains.kotlin:kotlin-reflect"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
+    compile "org.jetbrains.ktor:ktor-jetty:0.3.2"
     compile 'org.bouncycastle:bcprov-jdk15on:1.57'
     compile 'org.whispersystems:signal-service-android:2.5.11'
     compile "org.xerial:sqlite-jdbc:3.18.0"
