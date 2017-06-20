@@ -9,8 +9,11 @@ enum class UserStatus {
     DEACTIVATED
 }
 
-/** Represents a user as one exists in the database */
-data class User(val id: Int, val phoneNumber: PhoneNumber, val status: UserStatus)
+/** Represents a user as one exists in the database
+ *
+ * The `status` of the address can be changed; all other fields are immutable.
+ */
+data class User(val id: Int, val phoneNumber: PhoneNumber, var status: UserStatus)
 
 internal val CREATE_USER_TABLE =
         """CREATE TABLE IF NOT EXISTS users (
@@ -64,4 +67,22 @@ fun getUser(number: PhoneNumber): User? {
     return User(result.getInt("id"),
             number,
             UserStatus.valueOf(result.getString("account_status")))
+}
+
+private val UPDATE_USER = "UPDATE users SET account_status = ? WHERE id = ?"
+
+/**
+ * Saves the current values of the User object to the database
+ *
+ * As `status` is currently the only mutable field, it's the only one that is updated.
+ *
+ * @throws RuntimeException if the row to update is missing
+ */
+fun User.save() {
+    val statement = Database.connection.prepareStatement(UPDATE_USER)
+    statement.setString(1, this.status.name)
+    statement.setInt(2, this.id)
+
+    val rowsAffected = statement.executeUpdate()
+    if (rowsAffected != 1) throw RuntimeException("couldn't find the user I was supposed to update")
 }

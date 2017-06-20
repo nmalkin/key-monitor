@@ -79,6 +79,20 @@ class UserTest : Spek({
             }
         }
 
+        on("updating a user's status") {
+            it("changes the value in the database") {
+                val user = getUser(phoneNumber)
+                user!!
+                user.status = UserStatus.DEACTIVATED
+                user.save()
+
+                val result = connection.createStatement()
+                        .executeQuery("SELECT account_status FROM users WHERE id = ${user.id}")
+                assertTrue(result.next())
+                assertEquals(user.status, UserStatus.valueOf(result.getString("account_status")))
+            }
+        }
+
         afterGroup {
             // Clean up the testing database
             Database.closeConnection()
