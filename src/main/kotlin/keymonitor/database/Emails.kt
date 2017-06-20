@@ -30,6 +30,17 @@ internal val CREATE_EMAIL_TABLE =
         )
     """
 
+/**
+ * Return a new unsubscribe token
+ *
+ * This token is guaranteed to be a unique and hard-to-guess string.
+ * This is achieved by securely generating 16 bytes of randomness and
+ * (though this is overkill) prepending the current timestamp.
+ */
+private fun newUnsubscribeToken(): String {
+    return Date().time.toString() + getRandomHex()
+}
+
 private val INSERT_EMAIL = "INSERT INTO emails VALUES(null, ?, ?, ?, ?)"
 
 /**
@@ -43,7 +54,7 @@ fun addEmail(user: User, email: String): Email {
     statement.setInt(1, user.id)
     statement.setString(2, email)
     statement.setString(3, EmailStatus.ACTIVE.name)
-    val unsubscribeToken = Date().getTime().toString() + getRandomHex()
+    val unsubscribeToken = newUnsubscribeToken()
     statement.setString(4, unsubscribeToken)
 
     // Execute statement
