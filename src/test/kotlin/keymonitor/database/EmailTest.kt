@@ -93,7 +93,7 @@ class EmailTest : Spek({
             }
         }
 
-        on("retrieving an email") {
+        on("retrieving an email by the user") {
             // Clear the database, because the tests above left it in an invalid state
             connection.createStatement().executeUpdate("DELETE FROM emails WHERE user = 1")
             // TODO: it may be cleaner to flush the entire database before starting these tests
@@ -111,6 +111,25 @@ class EmailTest : Spek({
             it("returns null if it doesn't exist") {
                 val fakeUser = User(9, phoneNumber, UserStatus.ACTIVE)
                 assertNull(getActiveEmail(fakeUser))
+            }
+        }
+
+        on("retrieving an email by the unsubscribe token") {
+            connection.createStatement().executeUpdate("DELETE FROM emails WHERE user = 1")
+
+            val createdEmail = addEmail(user!!, address)
+
+            it("returns the right one") {
+                val email = getEmail(createdEmail.unsubscribeToken)
+                assertNotNull(email)
+                email!!
+                assertEquals(createdEmail.id, email.id)
+                assertEquals(createdEmail.status, email.status)
+                assertEquals(createdEmail.unsubscribeToken, email.unsubscribeToken)
+            }
+
+            it("returns null if it doesn't exist") {
+                assertNull(getEmail("this token doesn't exist"))
             }
         }
 

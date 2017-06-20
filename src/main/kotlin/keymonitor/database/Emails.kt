@@ -102,6 +102,42 @@ fun getActiveEmail(user: User): Email? {
     return email
 }
 
+private val SELECT_EMAIL_BY_UNSUBSCRIBE_TOKEN =
+        "SELECT * FROM emails WHERE unsubscribe_token = ?"
+
+/**
+ * Look up and return the email based on its unsubscribe token
+ *
+ * @param unsubscribeToken
+ * @return the user's active email, or null if it doesn't exist
+ * @throws RuntimeException if a matching user could not be found
+ * @throws RuntimeException if there are multiple active emails (this shouldn't happen)
+ */
+fun getEmail(unsubscribeToken: String): Email? {
+    val statement = Database.connection.prepareStatement(SELECT_EMAIL_BY_UNSUBSCRIBE_TOKEN)
+    statement.setString(1, unsubscribeToken)
+
+    val result = statement.executeQuery()
+    if (!result.next()) return null
+
+    val userID = result.getInt("user")
+    // Retrieve the full user information based on their ID.
+    // We need their full data to construct the Email object, but
+    // TODO: if User fields were lazy-loaded, the ID would suffice
+    val user = getUser(userID)
+            ?: throw RuntimeException("no user found for email address")
+
+    val email = Email(result.getInt("id"),
+            user,
+            result.getString("email"),
+            EmailStatus.valueOf(result.getString("email_status")),
+            result.getString("unsubscribe_token"))
+
+    if (result.next()) throw RuntimeException("more than one email found for unsubscribe token $unsubscribeToken")
+
+    return email
+}
+
 private val UPDATE_EMAIL = "UPDATE emails SET email_status = ? WHERE id = ?"
 
 /**
