@@ -65,13 +65,28 @@ class UserTest : Spek({
             }
         }
 
-        on("getting a user") {
+        on("getting a user by their phone number") {
             it("returns the right one") {
                 val user = getUser(phoneNumber)
                 assertNotNull(user)
                 user!!
                 assertEquals(1, user.id)
                 assertEquals(UserStatus.ACTIVE, user.status)
+            }
+
+            it("returns null if it doesn't exist") {
+                assertNull(getUser(PhoneNumber("+18885550000")))
+            }
+        }
+
+        on("getting a user by their ID") {
+            it("returns the right one") {
+                val createdUser = createUser(phoneNumber)
+                val user = getUser(createdUser.id)
+                assertNotNull(user)
+                user!!
+                assertEquals(createdUser.phoneNumber, user.phoneNumber)
+                assertEquals(createdUser.status, user.status)
             }
 
             it("returns null if it doesn't exist") {
