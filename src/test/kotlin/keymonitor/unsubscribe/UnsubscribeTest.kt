@@ -33,6 +33,7 @@ class UnsubscribeTest : Spek({
 
                 assertEquals(UnsubscribeResult.SUCCESS, unsubscribe)
             }
+
             it("marks the email as unsubscribed in the database") {
                 val email = newTestingEmail()
                 processUnsubscribe(email.unsubscribeToken)
@@ -53,6 +54,21 @@ class UnsubscribeTest : Spek({
                 assertTrue(result.next())
                 assertEquals(UserStatus.DEACTIVATED,
                         UserStatus.valueOf(result.getString("account_status")))
+            }
+
+            it("performs the unsubscribe even if it's been done before") {
+                val email = addEmail(createUser(PhoneNumber("+15105550123")), "test@example.com")
+                processUnsubscribe(email.unsubscribeToken)
+                // and again
+                val unsubscribe2 = processUnsubscribe(email.unsubscribeToken)
+
+                assertEquals(UnsubscribeResult.SUCCESS, unsubscribe2)
+
+                val result = connection.createStatement()
+                        .executeQuery("SELECT email_status FROM emails WHERE id = ${email.id}")
+                assertTrue(result.next())
+                assertEquals(EmailStatus.UNSUBSCRIBED,
+                        EmailStatus.valueOf(result.getString("email_status")))
             }
         }
 
