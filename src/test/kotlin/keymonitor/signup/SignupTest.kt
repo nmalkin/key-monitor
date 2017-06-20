@@ -1,9 +1,10 @@
 package keymonitor.signup
 
 import keymonitor.common.PhoneNumber
+import keymonitor.common.closeTestingDatabase
+import keymonitor.common.useTestingDatabase
 import keymonitor.database.Database
 import keymonitor.database.EmailStatus
-import keymonitor.database.setup
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -11,29 +12,6 @@ import org.jetbrains.spek.api.dsl.on
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
-/**
- * Set up a new database for testing
- *
- * @return the file storing the database
- */
-private fun useTestingDatabase(): File {
-    // Set up a new database for testing
-    val tempFile = File.createTempFile("testing-database", ".sqlite")
-    Database.file = tempFile.absolutePath
-    setup()
-    return tempFile
-}
-
-/**
- * Clean up a database after testing
- *
- * @param databaseFile the file where the database is stored
- */
-private fun closeTestingDatabase(databaseFile: File?) {
-    Database.closeConnection()
-    databaseFile?.delete()
-}
 
 private val phoneNumber = PhoneNumber("+18885550123")
 private val email = "test@example.com"
