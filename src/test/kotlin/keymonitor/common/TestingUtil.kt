@@ -11,8 +11,8 @@ import java.io.File
  * @return the file storing the database
  */
 fun useTestingDatabase(): File {
-    // Set up a new database for testing
     val tempFile = File.createTempFile("testing-database", ".sqlite")
+    tempFile.deleteOnExit()
     Database.file = tempFile.absolutePath
     setup()
     return tempFile
