@@ -14,6 +14,8 @@ object CONFIGS {
     var EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
     /** The email domain, as used by the Mailgun API */
     var EMAIL_DOMAIN: String by Conf()
+    /** How often, on average, to look up keys (in minutes) */
+    var LOOKUP_FREQUENCY: String by Conf("60")
     /** The base URL of the Mailgun API */
     var MAILGUN_URL: String by Conf("https://api.mailgun.net/")
     /** Mailgun API key */
