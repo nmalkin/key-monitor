@@ -2,12 +2,13 @@ package keymonitor.unsubscribe
 
 import keymonitor.common.PhoneNumber
 import keymonitor.common.closeTestingDatabase
-import keymonitor.common.useTestingDatabase
+import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.*
 import keymonitor.database.Database.connection
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
-import java.io.File
+import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -21,10 +22,8 @@ private fun newTestingEmail(): Email {
  */
 class UnsubscribeTest : Spek({
     describe("handling an unsubscribe request") {
-        var testDB: File? = null
-
         beforeGroup {
-            testDB = useTestingDatabase()
+            useNewTestingDatabase()
         }
 
         on("receiving a valid token") {
@@ -80,7 +79,7 @@ class UnsubscribeTest : Spek({
         }
 
         afterGroup {
-            closeTestingDatabase(testDB)
+            closeTestingDatabase()
         }
     }
 })

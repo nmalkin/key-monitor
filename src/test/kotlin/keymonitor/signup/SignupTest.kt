@@ -2,14 +2,13 @@ package keymonitor.signup
 
 import keymonitor.common.PhoneNumber
 import keymonitor.common.closeTestingDatabase
-import keymonitor.common.useTestingDatabase
+import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.Database
 import keymonitor.database.EmailStatus
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -24,10 +23,8 @@ private val registration2 = RegistrationMessage(phoneNumber, email2)
  */
 class SignupTest : Spek({
     describe("processing a registration") {
-        var testDB: File? = null
-
         beforeGroup {
-            testDB = useTestingDatabase()
+            useNewTestingDatabase()
         }
 
         on("getting a new user") {
@@ -109,7 +106,7 @@ class SignupTest : Spek({
         }
 
         afterGroup {
-            closeTestingDatabase(testDB)
+            closeTestingDatabase()
         }
     }
 })

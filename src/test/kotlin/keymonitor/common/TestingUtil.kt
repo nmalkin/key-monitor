@@ -7,23 +7,17 @@ import java.io.File
 
 /**
  * Set up a new database for testing
- *
- * @return the file storing the database
  */
-fun useTestingDatabase(): File {
+fun useNewTestingDatabase() {
     val tempFile = File.createTempFile("testing-database", ".sqlite")
     tempFile.deleteOnExit()
     Database.file = tempFile.absolutePath
     setup()
-    return tempFile
 }
 
 /**
- * Clean up a database after testing
- *
- * @param databaseFile the file where the database is stored
+ * Clean up database after testing
  */
-fun closeTestingDatabase(databaseFile: File? = null) {
+fun closeTestingDatabase() {
     Database.closeConnection()
-    databaseFile?.delete()
 }

@@ -2,7 +2,7 @@ package keymonitor.unsubscribe
 
 import keymonitor.common.PhoneNumber
 import keymonitor.common.closeTestingDatabase
-import keymonitor.common.useTestingDatabase
+import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.addEmail
 import keymonitor.database.createUser
 import org.jetbrains.ktor.application.Application
@@ -13,14 +13,11 @@ import org.jetbrains.ktor.testing.withTestApplication
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.File
 import kotlin.test.assertEquals
 
 class ApplicationTest {
-    var testDB: File? = null
-
     @BeforeEach fun setup() {
-        testDB = useTestingDatabase()
+        useNewTestingDatabase()
     }
 
     @Test fun testMissingToken() = withTestApplication(Application::main) {
@@ -43,6 +40,6 @@ class ApplicationTest {
     }
 
     @AfterEach fun tearDown() {
-        closeTestingDatabase(testDB)
+        closeTestingDatabase()
     }
 }

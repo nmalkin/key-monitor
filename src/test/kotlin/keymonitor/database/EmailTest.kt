@@ -2,12 +2,13 @@ package keymonitor.database
 
 
 import keymonitor.common.PhoneNumber
+import keymonitor.common.closeTestingDatabase
+import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.Database.connection
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -19,13 +20,9 @@ private val address = "test@example.com"
 
 class EmailTest : Spek({
     describe("an email in the database") {
-        var tempFile: File? = null
         var user: User? = null
         beforeGroup {
-            // Set up a new database for testing
-            tempFile = File.createTempFile("testing-database", ".sqlite")
-            Database.file = tempFile!!.absolutePath
-            setup()
+            useNewTestingDatabase()
 
             // Give it a user
             user = createUser(phoneNumber)
@@ -147,9 +144,7 @@ class EmailTest : Spek({
         }
 
         afterGroup {
-            // Clean up the testing database
-            Database.closeConnection()
-            tempFile?.delete()
+            closeTestingDatabase()
         }
     }
 })

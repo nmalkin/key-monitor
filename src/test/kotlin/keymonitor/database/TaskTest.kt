@@ -3,7 +3,7 @@ package keymonitor.database
 
 import keymonitor.common.PhoneNumber
 import keymonitor.common.closeTestingDatabase
-import keymonitor.common.useTestingDatabase
+import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.Database.connection
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -21,7 +21,7 @@ val someOtherTime = Instant.ofEpochSecond(1_000_000L)!!
 class TaskTest : Spek({
     describe("a scheduled key lookup in the database") {
         beforeGroup {
-            useTestingDatabase()
+            useNewTestingDatabase()
         }
 
         on("adding a task") {
