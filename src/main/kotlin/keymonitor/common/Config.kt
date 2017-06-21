@@ -10,8 +10,6 @@ object CONFIGS {
      * you need to modify the keymonitor.database.Database.file * property directly.
      */
     val DEFAULT_DB_FILE: String by Conf("database.sqlite")
-    /** The URL of the unsubscribe server */
-    var UNSUBSCRIBE_SERVER: String by Conf("http://example.com/")
     /** The email address from which the app's communication is coming */
     var EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
     /** The email domain, as used by the Mailgun API */
@@ -20,6 +18,10 @@ object CONFIGS {
     var MAILGUN_URL: String by Conf("https://api.mailgun.net/")
     /** Mailgun API key */
     var MAILGUN_API_KEY: String by Conf()
+    /** The port on which the unsubscribe web service should run */
+    var UNSUBSCRIBE_PORT: String by Conf("8080")
+    /** The URL of the unsubscribe server */
+    var UNSUBSCRIBE_SERVER: String by Conf("http://example.com/")
 }
 
 /** A [delegate class](https://kotlinlang.org/docs/reference/delegated-properties.html)

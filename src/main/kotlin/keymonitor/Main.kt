@@ -3,6 +3,7 @@ package keymonitor
 import com.beust.jcommander.JCommander
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
+import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
 import keymonitor.common.PhoneNumberBuilder
 import keymonitor.common.PhoneNumberValidator
@@ -26,6 +27,9 @@ class SignupCommand {
 @Parameters(commandDescription = "Set up the database for Key Monitor")
 class SetupDatabaseCommand
 
+@Parameters(commandDescription = "Run the unsubscribe web service")
+class UnsubscribeServiceCommand
+
 fun main(args: Array<String>) {
     val mainCommand = MainCommand()
     val signupCommand = SignupCommand()
@@ -33,6 +37,7 @@ fun main(args: Array<String>) {
             ?.addObject(mainCommand)
             ?.addCommand("setup-database", SetupDatabaseCommand())
             ?.addCommand("signup", signupCommand)
+            ?.addCommand("unsubscribe", UnsubscribeServiceCommand())
             ?.build()
             ?: throw RuntimeException("failed to initialize arg parser")
     commands.parse(*args)
@@ -48,6 +53,7 @@ fun main(args: Array<String>) {
             val serverNumber = signupCommand.serverPhoneNumber ?: throw IllegalArgumentException()
             keymonitor.signup.run(serverNumber)
         }
+        "unsubscribe" -> keymonitor.unsubscribe.launch(CONFIGS.UNSUBSCRIBE_PORT.toInt())
         else -> commands.usage()
     }
 
