@@ -15,7 +15,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-val someTime = Instant.EPOCH!! // 1970-01-01T00:00:00Z
+val someTime = Instant.EPOCH!!
 val someOtherTime = Instant.ofEpochSecond(1_000_000L)!!
 
 class TaskTest : Spek({
@@ -53,6 +53,7 @@ class TaskTest : Spek({
                         .executeQuery("SELECT * FROM lookup_tasks WHERE id = ${task.id}")
                 assertTrue(result.next())
                 assertEquals("1970-01-01T00:00:00Z", result.getString("not_before"))
+                assertEquals("1970-01-12T13:46:40Z", result.getString("expires"))
             }
 
             it("references the right user") {
