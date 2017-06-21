@@ -23,7 +23,7 @@ fun useTestingDatabase(): File {
  *
  * @param databaseFile the file where the database is stored
  */
-fun closeTestingDatabase(databaseFile: File?) {
+fun closeTestingDatabase(databaseFile: File? = null) {
     Database.closeConnection()
     databaseFile?.delete()
 }

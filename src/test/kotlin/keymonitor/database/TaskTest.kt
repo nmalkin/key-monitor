@@ -20,11 +20,13 @@ val someOtherTime = Instant.ofEpochSecond(1_000_000L)!!
 
 class TaskTest : Spek({
     describe("a scheduled key lookup in the database") {
-        var tempDB = useTestingDatabase()
-        val user = createUser(PhoneNumber("+18885550123"))
+        beforeGroup {
+            useTestingDatabase()
+        }
 
         on("adding a task") {
             it("doesn't throw an exception") {
+                val user = createUser(PhoneNumber("+18885550123"))
                 assertNotNull(createTask(user, someTime, someOtherTime))
             }
 
@@ -33,6 +35,7 @@ class TaskTest : Spek({
                         .executeQuery("SELECT COUNT(*) FROM lookup_tasks")
                         .getInt(1)
 
+                val user = createUser(PhoneNumber("+18885550123"))
                 createTask(user, someTime, someOtherTime)
 
                 val countAfter = connection.createStatement()
@@ -43,6 +46,7 @@ class TaskTest : Spek({
             }
 
             it("stores the right time values") {
+                val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someOtherTime)
 
                 val result = connection.createStatement()
@@ -52,6 +56,7 @@ class TaskTest : Spek({
             }
 
             it("references the right user") {
+                val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someOtherTime)
 
                 val result = connection.createStatement()
@@ -62,7 +67,7 @@ class TaskTest : Spek({
         }
 
         afterGroup {
-            closeTestingDatabase(tempDB)
+            closeTestingDatabase()
         }
     }
 })
