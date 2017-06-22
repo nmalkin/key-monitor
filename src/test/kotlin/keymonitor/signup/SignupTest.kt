@@ -79,29 +79,48 @@ class SignupTest : Spek({
 
         on("getting a fully duplicate registration") {
             // …it should behave as if a new email has been added
-            processRegistration(registration2)
 
             it("doesn't add a new user to the database") {
-                val result = Database.connection.createStatement()
+                val countBefore = Database.connection.createStatement()
                         .executeQuery("SELECT COUNT(*) FROM users")
-                assertTrue(result.next())
-                assertEquals(1, result.getInt(1))
+                        .getInt(1)
+
+                processRegistration(registration2)
+
+                val countAfter = Database.connection.createStatement()
+                        .executeQuery("SELECT COUNT(*) FROM users")
+                        .getInt(1)
+
+                assertEquals(countBefore, countAfter)
             }
 
             it("does add a new email to the database") {
-                val result = Database.connection.createStatement()
+                val countBefore = Database.connection.createStatement()
                         .executeQuery("SELECT COUNT(*) FROM emails")
-                assertTrue(result.next())
-                assertEquals(3, result.getInt(1))
+                        .getInt(1)
+
+                processRegistration(registration2)
+
+                val countAfter = Database.connection.createStatement()
+                        .executeQuery("SELECT COUNT(*) FROM emails")
+                        .getInt(1)
+
+                assertEquals(countBefore + 1, countAfter)
             }
 
             it("marks the user's current email address as having been replaced") {
-                val result = Database.connection.createStatement()
-                        .executeQuery("SELECT email_status FROM emails WHERE email='$email2'")
-                assertTrue(result.next())
-                assertEquals(EmailStatus.REPLACED.name, result.getString("email_status"))
-                assertTrue(result.next())
-                assertEquals(EmailStatus.ACTIVE.name, result.getString("email_status"))
+                val registration1 = processRegistration(registration2)
+                val registration2 = processRegistration(registration2)
+
+                val statusOld = Database.connection.createStatement()
+                        .executeQuery("SELECT email_status FROM emails WHERE id = ${registration1.id}")
+                        .getString(1)
+                assertEquals(EmailStatus.REPLACED.name, statusOld)
+
+                val statusNew = Database.connection.createStatement()
+                        .executeQuery("SELECT email_status FROM emails WHERE id = ${registration2.id}")
+                        .getString(1)
+                assertEquals(EmailStatus.ACTIVE.name, statusNew)
             }
         }
 
