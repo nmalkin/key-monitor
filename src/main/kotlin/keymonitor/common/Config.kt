@@ -11,19 +11,19 @@ object CONFIGS {
      */
     val DEFAULT_DB_FILE: String by Conf("database.sqlite")
     /** The email address from which the app's communication is coming */
-    var EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
+    val EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
     /** The email domain, as used by the Mailgun API */
     var EMAIL_DOMAIN: String by Conf()
     /** How often, on average, to look up keys (in minutes) */
-    var LOOKUP_FREQUENCY: String by Conf("60")
+    val LOOKUP_FREQUENCY: String by Conf("60")
     /** The base URL of the Mailgun API */
     var MAILGUN_URL: String by Conf("https://api.mailgun.net/")
     /** Mailgun API key */
     var MAILGUN_API_KEY: String by Conf()
     /** The port on which the unsubscribe web service should run */
-    var UNSUBSCRIBE_PORT: String by Conf("8080")
+    val UNSUBSCRIBE_PORT: String by Conf("8080")
     /** The URL of the unsubscribe server */
-    var UNSUBSCRIBE_SERVER: String by Conf("http://example.com/")
+    val UNSUBSCRIBE_SERVER: String by Conf("http://example.com/")
 }
 
 /** A [delegate class](https://kotlinlang.org/docs/reference/delegated-properties.html)
