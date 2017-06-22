@@ -20,6 +20,8 @@ object CONFIGS {
     var MAILGUN_URL: String by Conf("https://api.mailgun.net/")
     /** Mailgun API key */
     var MAILGUN_API_KEY: String by Conf()
+    /** The phone number of the Signal instance used by the server */
+    val SIGNAL_PHONE_NUMBER: String by Conf()
     /** The port on which the unsubscribe web service should run */
     val UNSUBSCRIBE_PORT: String by Conf("8080")
     /** The URL of the unsubscribe server */

@@ -1,6 +1,5 @@
 package keymonitor.common
 
-import com.beust.jcommander.ParameterException
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -24,14 +23,6 @@ class PhoneNumberTest : Spek({
             it("doesn't do that if given a good number") {
                 val number = PhoneNumber(goodNumber)
                 assertNotNull(number)
-            }
-        }
-    }
-
-    describe("the JCommander validator") {
-        it("throws a ParameterException for bad numbers") {
-            assertFailsWith<ParameterException> {
-                PhoneNumberValidator().validate("dummy", badNumber)
             }
         }
     }

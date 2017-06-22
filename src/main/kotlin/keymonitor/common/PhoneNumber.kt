@@ -41,16 +41,3 @@ open class PhoneNumber(val number: String) {
         return number
     }
 }
-
-// for JCommander
-class PhoneNumberValidator : IParameterValidator {
-    override fun validate(name: String, value: String) {
-        if (!validPhoneNumber(value)) throw ParameterException("invalid phone number provided")
-    }
-}
-
-class PhoneNumberBuilder : IStringConverter<PhoneNumber> {
-    override fun convert(value: String): PhoneNumber {
-        return PhoneNumber(value)
-    }
-}

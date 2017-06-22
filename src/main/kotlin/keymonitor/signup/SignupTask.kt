@@ -29,14 +29,14 @@ If you did not subscribe to this service, please click the unsubscribe link abov
  * 2. Save the user and email to the database
  * 3. Send them a notification message
  */
-fun run(serverNumber: PhoneNumber) {
+fun run() {
     // Create temporary file for the CLI to output to
     val tempFile = File.createTempFile("signuptask.signal-cli", ".log")
     tempFile.deleteOnExit()
 
     // Run signal-cl and wait for it to finish
     val process = Runtime.getRuntime()?.exec(arrayOf("signal-cli", "--username",
-            serverNumber.toString(), "json",
+            CONFIGS.SIGNAL_PHONE_NUMBER, "json",
             "--logfile", tempFile.absolutePath,
             "--ignore-attachments",
             "--timeout", "1"))

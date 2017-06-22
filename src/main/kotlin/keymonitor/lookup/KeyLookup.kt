@@ -1,5 +1,7 @@
 package keymonitor.lookup
 
+import keymonitor.common.CONFIGS
+import keymonitor.common.PhoneNumber
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
 import org.whispersystems.signalservice.api.push.TrustStore
 import org.whispersystems.signalservice.internal.push.PushServiceSocket
@@ -8,9 +10,7 @@ import org.whispersystems.signalservice.internal.util.StaticCredentialsProvider
 import java.io.InputStream
 import java.security.Security
 
-fun main(args: Array<String>) {
-    val PHONE_NUMBER = "+15105550123"
-
+fun lookup(phoneNumber: PhoneNumber) {
     /*
      * The URL of the official Signal server
      */
@@ -40,7 +40,7 @@ fun main(args: Array<String>) {
     /*
      * By convention or requirement, the username is the phone number.
      */
-    val user = PHONE_NUMBER
+    val user = CONFIGS.SIGNAL_PHONE_NUMBER
     val password = "<PASSWORD>"
 
     /*
@@ -61,7 +61,7 @@ fun main(args: Array<String>) {
     /* The number to look up.
      * SignalServiceAddress takes a "e164 representation of a phone number"
      */
-    val destination = SignalServiceAddress(PHONE_NUMBER)
+    val destination = SignalServiceAddress(phoneNumber.toString())
 
     /*
     * Lookup requires a device ID.
@@ -79,4 +79,9 @@ fun main(args: Array<String>) {
 
         println("The fingerprint is $fingerprint")
     })
+}
+
+fun main(args: Array<String>) {
+    val PHONE_NUMBER = PhoneNumber("+15105550123")
+    lookup(PHONE_NUMBER)
 }
