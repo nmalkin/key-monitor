@@ -2,6 +2,7 @@ package keymonitor.database
 
 import keymonitor.common.PhoneNumber
 import java.sql.SQLException
+import javax.xml.crypto.Data
 
 /** Enum representing whether the user's keys should be monitored */
 enum class UserStatus {
@@ -104,4 +105,20 @@ fun User.save() {
 
     val rowsAffected = statement.executeUpdate()
     if (rowsAffected != 1) throw RuntimeException("couldn't find the user I was supposed to update")
+}
+
+private val SELECT_ACTIVE = "SELECT id FROM users WHERE account_status = '${UserStatus.ACTIVE.name}'"
+
+/**
+ * Return all users in the database marked as active
+ */
+fun getActiveUsers(): Collection<User> {
+    val result = Database.connection.createStatement().executeQuery(SELECT_ACTIVE)
+    val activeUsers = mutableListOf<User>()
+    while (result.next()) {
+        val userID = result.getInt("id")
+        val user = getUser(userID) ?: throw RuntimeException("user $userID no longer exists")
+        activeUsers.add(user)
+    }
+    return activeUsers
 }

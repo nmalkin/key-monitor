@@ -105,6 +105,41 @@ class UserTest : Spek({
             }
         }
 
+        on("getting all active users") {
+            it("returns the right number of users") {
+                val activeUsers = getActiveUsers()
+
+                val count = connection.createStatement()
+                        .executeQuery("SELECT COUNT(*) FROM users WHERE account_status = '${UserStatus.ACTIVE.name}'")
+                        .getInt(1)
+
+                assertEquals(count, activeUsers.size)
+            }
+
+            it("contains identifiable users") {
+                val newUser = createUser(PhoneNumber("+14155550101"))
+                val activeUsers = getActiveUsers()
+                assertTrue(activeUsers.contains(newUser))
+            }
+
+            it("doesn't return anyone who isn't active") {
+                // Make sure there's at least one inactive user
+                val inactiveUser = createUser(PhoneNumber("+14155550102"))
+                inactiveUser.status = UserStatus.DEACTIVATED
+                inactiveUser.save()
+
+                val activeUsers = getActiveUsers()
+
+                val result = connection.createStatement()
+                        .executeQuery("SELECT id FROM users WHERE account_status = '${UserStatus.DEACTIVATED.name}'")
+                while (result.next()) {
+                    val userID = result.getInt("id")
+                    val user = getUser(userID)!!
+                    assertTrue(!activeUsers.contains(user))
+                }
+            }
+        }
+
         afterGroup {
             closeTestingDatabase()
         }
