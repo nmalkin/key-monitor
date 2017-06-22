@@ -1,5 +1,7 @@
 package keymonitor.lookup
 
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.databind.ObjectMapper
 import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
 import org.whispersystems.libsignal.IdentityKey
@@ -9,6 +11,7 @@ import org.whispersystems.signalservice.api.util.CredentialsProvider
 import org.whispersystems.signalservice.internal.push.PushServiceSocket
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl
 import org.whispersystems.signalservice.internal.util.StaticCredentialsProvider
+import java.io.File
 import java.io.InputStream
 import java.security.Security
 
@@ -19,12 +22,7 @@ class SignalAPI(credentials: CredentialsProvider) {
     companion object {
         /** Return the default Signal API, based on the credentials preloaded on the system */
         fun loadDefault(): SignalAPI {
-            // The username is the phone number.
-            val user = CONFIGS.SIGNAL_PHONE_NUMBER
-            val password = "<PASSWORD>"
-            val signalingKey = "<KEY>"
-            val credentialsProvider = StaticCredentialsProvider(user, password, signalingKey)
-
+            val credentialsProvider = loadSignalCredentialsFromFile(CONFIGS.SIGNAL_PHONE_NUMBER)
             return SignalAPI(credentialsProvider)
         }
     }
@@ -100,3 +98,32 @@ class SignalAPI(credentials: CredentialsProvider) {
         return keys
     }
 }
+
+/**
+ * Load credentials from JSON file used by the Signal CLI
+ *
+ * @throws JsonParsingException if the JSON is malformed or the config doesn't exist
+ */
+internal fun loadSignalCredentialsFromFile(serverPhoneNumber: String,
+                                           directory: String = "~/.config/signal/data"): CredentialsProvider {
+    var path = directory + File.separator + serverPhoneNumber
+    if (path.startsWith("~" + File.separator)) {
+        path = System.getProperty("user.home") + path.substring(1)
+    }
+
+    val file = File(path)
+    if (!file.exists()) throw JsonParsingException("file $path does not exist")
+
+    val jsonParser = ObjectMapper(JsonFactory())
+    val json = jsonParser.readTree(file)
+
+    if (!json.isObject) throw JsonParsingException("malformed config")
+
+    val username = json.get("username")?.asText() ?: throw JsonParsingException("missing username")
+    val password = json.get("password")?.asText() ?: throw JsonParsingException("missing password")
+    val signalingKey = json.get("signalingKey")?.asText() ?: throw JsonParsingException("missing signalingKey")
+
+    return StaticCredentialsProvider(username, password, signalingKey)
+}
+
+class JsonParsingException(message: String) : RuntimeException(message)
