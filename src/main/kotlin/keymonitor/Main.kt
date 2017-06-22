@@ -15,6 +15,9 @@ class MainCommand {
     var help: Boolean = false
 }
 
+@Parameters(commandDescription = "Generate lookup tasks")
+class ScheduleCommand
+
 @Parameters(commandDescription = "Check for messages and register any new users")
 class SignupCommand {
     @Parameter(names = arrayOf("--number"), required = true,
@@ -35,6 +38,7 @@ fun main(args: Array<String>) {
     val signupCommand = SignupCommand()
     val commands = JCommander.newBuilder()
             ?.addObject(mainCommand)
+            ?.addCommand("schedule", ScheduleCommand())
             ?.addCommand("setup-database", SetupDatabaseCommand())
             ?.addCommand("signup", signupCommand)
             ?.addCommand("unsubscribe", UnsubscribeServiceCommand())
@@ -48,6 +52,7 @@ fun main(args: Array<String>) {
     }
 
     when (commands.parsedCommand) {
+        "schedule" -> keymonitor.schedule.run()
         "setup-database" -> keymonitor.database.setup(verbose = true)
         "signup" -> {
             val serverNumber = signupCommand.serverPhoneNumber ?: throw IllegalArgumentException()

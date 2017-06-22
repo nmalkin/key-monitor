@@ -4,6 +4,7 @@ import keymonitor.common.CONFIGS
 import keymonitor.database.LookupTask
 import keymonitor.database.User
 import keymonitor.database.createTask
+import keymonitor.database.getActiveUsers
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -36,4 +37,21 @@ fun scheduleTaskForUser(user: User, startTime: Instant): LookupTask {
 
     val newTask = createTask(user, lookupTime, expires)
     return newTask
+}
+
+/**
+ * Schedule all active users at the given start time
+ */
+fun scheduleActiveUsers(startTime: Instant) {
+    getActiveUsers().parallelStream()
+            .map { user ->
+                scheduleTaskForUser(user, startTime)
+            }
+}
+
+/**
+ * Schedule all active users, using the current instant as the start time
+ */
+fun run() {
+    scheduleActiveUsers(Instant.now())
 }
