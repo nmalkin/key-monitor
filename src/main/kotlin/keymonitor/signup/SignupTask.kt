@@ -83,6 +83,12 @@ internal fun processRegistration(registration: RegistrationMessage): Email {
             currentEmail.status = EmailStatus.REPLACED
             currentEmail.save()
         }
+
+        // If the user is currently deactivated (because they unsubscribed), reactivate them.
+        if (user.status == UserStatus.DEACTIVATED) {
+            user.status = UserStatus.ACTIVE
+            user.save()
+        }
     }
 
     val newEmail = addEmail(user, email)

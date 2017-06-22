@@ -5,6 +5,8 @@ import keymonitor.common.closeTestingDatabase
 import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.Database
 import keymonitor.database.EmailStatus
+import keymonitor.database.UserStatus
+import keymonitor.database.save
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -53,7 +55,7 @@ class SignupTest : Spek({
         }
 
         on("getting an existing user") {
-            processRegistration(registration2)
+            val newRegistration = processRegistration(registration2)
 
             it("doesn't add a new user to the database") {
                 val result = Database.connection.createStatement()
@@ -74,6 +76,19 @@ class SignupTest : Spek({
                         .executeQuery("SELECT email_status FROM emails WHERE email='$email'")
                 assertTrue(result.next())
                 assertEquals(EmailStatus.REPLACED.name, result.getString("email_status"))
+            }
+
+            it("sets the user to be active even if they're currently inactive") {
+                val user = newRegistration.user
+                user.status = UserStatus.DEACTIVATED
+                user.save()
+
+                processRegistration(registration2)
+                val status = Database.connection.createStatement()
+                        .executeQuery("SELECT account_status FROM users WHERE id = ${user.id}")
+                        .getString("account_status")
+
+                assertEquals(UserStatus.ACTIVE, UserStatus.valueOf(status))
             }
         }
 
