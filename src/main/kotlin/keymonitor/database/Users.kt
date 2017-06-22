@@ -2,7 +2,6 @@ package keymonitor.database
 
 import keymonitor.common.PhoneNumber
 import java.sql.SQLException
-import javax.xml.crypto.Data
 
 /** Enum representing whether the user's keys should be monitored */
 enum class UserStatus {
