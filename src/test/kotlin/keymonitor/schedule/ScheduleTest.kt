@@ -44,13 +44,22 @@ class ScheduleTest : Spek({
                 assertEquals(user.id, userID)
             }
 
-            it("schedules the task during the correct interval") {
+            it("schedules the task after the start time") {
                 val startTime = Instant.EPOCH
                 for (i in 1..1000) {
                     // Repeat so we get a bunch of different scheduled times
                     val task = scheduleTaskForUser(user, startTime)
                     assertTrue(task.notBefore.isAfter(startTime))
-                    assertTrue(task.expires.isBefore(startTime.plus(LOOKUP_FREQUENCY)))
+                }
+            }
+
+            it("doesn't expire the task too late") {
+                val startTime = Instant.EPOCH
+                // The latest a task would expire is 2xLOOKUP_INTERVAL from now.
+                val tooLate = startTime.plus(LOOKUP_INTERVAL).plus(LOOKUP_INTERVAL)
+                for (i in 1..1000) {
+                    val task = scheduleTaskForUser(user, startTime)
+                    assertTrue(task.expires.isBefore(tooLate))
                 }
             }
 
@@ -60,7 +69,7 @@ class ScheduleTest : Spek({
                 }
 
                 val result = connection.createStatement()
-                        .executeQuery("SELECT notBefore FROM lookup_tasks")
+                        .executeQuery("SELECT not_before FROM lookup_tasks")
                 val times: MutableSet<String> = hashSetOf()
                 while (result.next()) {
                     times.add(result.getString(1))
@@ -70,7 +79,7 @@ class ScheduleTest : Spek({
                 assertTrue(times.distinct().size > 1)
 
                 // Ensure that something got scheduled at each potential time
-                assertEquals(LOOKUP_FREQUENCY.toMinutes().toInt(), times.distinct().size)
+                assertEquals(LOOKUP_FREQUENCY - 1, times.distinct().size)
             }
         }
 
