@@ -22,9 +22,12 @@ interface SignalAPI {
      * @param phoneNumber The number to look up.
      */
     fun lookup(phoneNumber: PhoneNumber): Collection<RawKey>
+
+    /** The phone number (aka username) used by the API to access the Signal server */
+    val user: String
 }
 
-class RealSignalServer(credentials: CredentialsProvider): SignalAPI {
+class RealSignalServer(val credentials: CredentialsProvider): SignalAPI {
     /** A factory for the Signal API */
     companion object {
         /** Return the default Signal API, based on the credentials preloaded on the system */
@@ -45,6 +48,9 @@ class RealSignalServer(credentials: CredentialsProvider): SignalAPI {
             Security.insertProviderAt(org.bouncycastle.jce.provider.BouncyCastleProvider(), 1)
         }
     }
+
+    override val user: String
+        get() = credentials.user
 
     /**
      * The URL of the official Signal server

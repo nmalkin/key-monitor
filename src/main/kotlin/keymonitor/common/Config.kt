@@ -1,5 +1,6 @@
 package keymonitor.common
 
+import java.net.InetAddress
 import kotlin.reflect.KProperty
 
 object CONFIGS {
@@ -16,6 +17,8 @@ object CONFIGS {
     var EMAIL_DOMAIN: String by Conf()
     /** How often, on average, to look up keys (in minutes) */
     val LOOKUP_FREQUENCY: String by Conf("60")
+    /** The IP address from which lookups are performed */
+    val LOOKUP_IP_ADDRESS: String by Conf(InetAddress.getLocalHost().hostAddress)
     /** The base URL of the Mailgun API */
     var MAILGUN_URL: String by Conf("https://api.mailgun.net/")
     /** Mailgun API key */

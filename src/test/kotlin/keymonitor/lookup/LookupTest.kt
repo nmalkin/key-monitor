@@ -22,6 +22,7 @@ class LookupTest : Spek({
     describe("performing a lookup task") {
         val api = mock<SignalAPI> {
             on { lookup(testNumber) } doReturn setOf(byteArrayOf(1, 2, 3), byteArrayOf(4, 5, 6))
+            on { user } doReturn "+18885550100"
         }
 
         beforeGroup {

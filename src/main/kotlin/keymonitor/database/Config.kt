@@ -48,3 +48,6 @@ object Database {
         _connection = null
     }
 }
+
+/** Thrown when the data we're operating on appears to be in a bad state */
+class DataStateError(message: String) : RuntimeException(message)
