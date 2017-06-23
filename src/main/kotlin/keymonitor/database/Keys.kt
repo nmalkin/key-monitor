@@ -1,5 +1,6 @@
 package keymonitor.database
 
+import java.sql.SQLException
 import java.time.Instant
 
 /** Represents whether they has been compared to previous versions for changes */
@@ -7,8 +8,8 @@ enum class KeyStatus { UNCHECKED, CHECKED }
 
 /** Represents the results of a key lookup */
 data class Key(val id: Int,
-               val taskId: Int,
-               val userId: Int,
+               val taskID: Int,
+               val userID: Int,
                val lookupTime: Instant,
                val lookupPhone: String,
                val lookupIP: String,
@@ -31,3 +32,34 @@ val CREATE_KEY_TABLE =
             FOREIGN KEY(user_id) REFERENCES users(id)
             )
         """
+
+private val INSERT_KEY = "INSERT INTO keys VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+/** Save a new key with the given values to the database */
+fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP: String, value: String): Key {
+    val row = with(Database.connection.prepareStatement(INSERT_KEY)) {
+        setInt(1, task.id)
+        setInt(2, task.userID)
+        setString(3, lookupTime.toString())
+        setString(4, lookupPhone)
+        setString(5, lookupIP)
+        setString(6, KeyStatus.UNCHECKED.name)
+        setString(7, value)
+        setString(8, Instant.now().toString()) // created_at
+
+        executeUpdate()
+        generatedKeys
+    }
+
+    if (!row.next()) throw SQLException("failed creating user (cannot access created ID)")
+    val id = row.getInt(1)
+
+    return Key(id,
+            taskID = task.id,
+            userID = task.userID,
+            lookupTime = lookupTime,
+            lookupPhone = lookupPhone,
+            lookupIP = lookupIP,
+            status = KeyStatus.UNCHECKED,
+            value = value)
+}

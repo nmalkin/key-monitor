@@ -15,6 +15,8 @@ import java.time.Instant
 import kotlin.test.assertEquals
 
 val testNumber = PhoneNumber("+15105550123")
+private val someTime = Instant.ofEpochSecond(2_000_000L)!!
+private val someOtherTime = Instant.ofEpochSecond(3_000_000L)!!
 
 class LookupTest : Spek({
     describe("performing a lookup task") {

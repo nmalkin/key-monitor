@@ -16,8 +16,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-val someTime = Instant.EPOCH!!
-val someOtherTime = Instant.ofEpochSecond(1_000_000L)!!
+private val someTime = Instant.EPOCH!!
+private val someOtherTime = Instant.ofEpochSecond(1_000_000L)!!
 
 class TaskTest : Spek({
     describe("a scheduled key lookup in the database") {
