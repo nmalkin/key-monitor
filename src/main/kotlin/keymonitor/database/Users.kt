@@ -1,7 +1,6 @@
 package keymonitor.database
 
 import keymonitor.common.PhoneNumber
-import java.sql.SQLException
 
 /** Enum representing whether the user's keys should be monitored */
 enum class UserStatus {
@@ -29,7 +28,7 @@ private val INSERT_USER = "INSERT INTO users VALUES (null, ?, ?)"
  * Create a new user with the given phone number in the database
  *
  * @return new User object representing the created user, if the operation was successful
- * @throws SQLException if anything goes wrong
+ * @throws DataStateError if anything goes wrong
  */
 fun createUser(number: PhoneNumber): User {
     // Prepare statement
@@ -39,11 +38,11 @@ fun createUser(number: PhoneNumber): User {
 
     // Execute statement
     val rowsAffected = statement.executeUpdate()
-    if (rowsAffected == 0) throw SQLException("failed creating user (no rows affected)")
+    if (rowsAffected == 0) throw DataStateError("failed creating user (no rows affected)")
 
     // Get ID of newly created user
     val keys = statement.generatedKeys
-    if (!keys.next()) throw SQLException("failed creating user (cannot access created ID)")
+    if (!keys.next()) throw DataStateError("failed creating user (cannot access created ID)")
     val id = keys.getInt(1)
 
     // Set up a new User object
@@ -103,7 +102,7 @@ fun User.save() {
     statement.setInt(2, this.id)
 
     val rowsAffected = statement.executeUpdate()
-    if (rowsAffected != 1) throw RuntimeException("couldn't find the user I was supposed to update")
+    if (rowsAffected != 1) throw DataStateError("couldn't find the user I was supposed to update")
 }
 
 private val SELECT_ACTIVE = "SELECT id FROM users WHERE account_status = '${UserStatus.ACTIVE.name}'"
@@ -116,7 +115,7 @@ fun getActiveUsers(): Collection<User> {
     val activeUsers = mutableListOf<User>()
     while (result.next()) {
         val userID = result.getInt("id")
-        val user = getUser(userID) ?: throw RuntimeException("user $userID no longer exists")
+        val user = getUser(userID) ?: throw DataStateError("user $userID no longer exists")
         activeUsers.add(user)
     }
     return activeUsers

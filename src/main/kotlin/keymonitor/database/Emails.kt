@@ -1,7 +1,6 @@
 package keymonitor.database
 
 import keymonitor.common.getRandomHex
-import java.sql.SQLException
 import java.util.*
 
 /** Enum representing whether the user wants to receive messages at this address. */
@@ -59,11 +58,11 @@ fun addEmail(user: User, email: String): Email {
 
     // Execute statement
     val rowsAffected = statement.executeUpdate()
-    if (rowsAffected == 0) throw SQLException("failed creating email (no rows affected)")
+    if (rowsAffected == 0) throw DataStateError("failed creating email (no rows affected)")
 
     // Get ID of newly created email
     val keys = statement.generatedKeys
-    if (!keys.next()) throw SQLException("failed creating user (cannot access created ID)")
+    if (!keys.next()) throw DataStateError("failed creating user (cannot access created ID)")
     val id = keys.getInt(1)
 
     // Set up a new Email object
@@ -97,7 +96,7 @@ fun getActiveEmail(user: User): Email? {
             EmailStatus.ACTIVE,
             result.getString("unsubscribe_token"))
 
-    if (result.next()) throw RuntimeException("more than one active email found for user ${user.id}")
+    if (result.next()) throw DataStateError("more than one active email found for user ${user.id}")
 
     return email
 }
@@ -126,7 +125,7 @@ fun getEmail(unsubscribeToken: String): Email? {
             EmailStatus.valueOf(result.getString("email_status")),
             result.getString("unsubscribe_token"))
 
-    if (result.next()) throw RuntimeException("more than one email found for unsubscribe token $unsubscribeToken")
+    if (result.next()) throw DataStateError("more than one email found for unsubscribe token $unsubscribeToken")
 
     return email
 }
@@ -146,5 +145,5 @@ fun Email.save() {
     statement.setInt(2, this.id)
 
     val rowsAffected = statement.executeUpdate()
-    if (rowsAffected != 1) throw RuntimeException("couldn't find the email I was supposed to update")
+    if (rowsAffected != 1) throw DataStateError("couldn't find the email I was supposed to update")
 }

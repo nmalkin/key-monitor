@@ -1,6 +1,5 @@
 package keymonitor.database
 
-import java.sql.SQLException
 import java.time.Instant
 
 /** Represents whether they has been compared to previous versions for changes */
@@ -51,7 +50,7 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
         generatedKeys
     }
 
-    if (!row.next()) throw SQLException("failed creating user (cannot access created ID)")
+    if (!row.next()) throw DataStateError("failed creating user (cannot access created ID)")
     val id = row.getInt(1)
 
     return Key(id,

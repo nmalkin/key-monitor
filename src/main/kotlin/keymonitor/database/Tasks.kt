@@ -1,6 +1,5 @@
 package keymonitor.database
 
-import java.sql.SQLException
 import java.time.Instant
 
 /** Defines the status of this task */
@@ -41,7 +40,7 @@ fun createTask(user: User, notBefore: Instant, expires: Instant): LookupTask {
         generatedKeys
     }
 
-    if (!keys.next()) throw SQLException("failed creating user (cannot access created ID)")
+    if (!keys.next()) throw DataStateError("failed creating user (cannot access created ID)")
     val id = keys.getInt(1)
 
     return LookupTask(id, user.id, notBefore, expires, LookupTaskStatus.PENDING)
@@ -58,7 +57,7 @@ fun LookupTask.save() {
         executeUpdate()
     }
 
-    if (affected == 0) throw SQLException("failed at updating task $id")
+    if (affected == 0) throw DataStateError("failed at updating task $id")
 }
 
 /**
