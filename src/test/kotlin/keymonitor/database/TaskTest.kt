@@ -55,6 +55,15 @@ class TaskTest : Spek({
                 assertEquals("1970-01-01T00:00:00Z", result.getString("not_before"))
                 assertEquals("1970-01-12T13:46:40Z", result.getString("expires"))
             }
+            it("gives the task the correct status") {
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user, someTime, someOtherTime)
+
+                val status = connection.createStatement()
+                        .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
+                        .getString("status")
+                assertEquals(LookupTaskStatus.PENDING, LookupTaskStatus.valueOf(status))
+            }
 
             it("references the right user") {
                 val user = createUser(PhoneNumber("+18885550123"))
@@ -64,6 +73,19 @@ class TaskTest : Spek({
                         .executeQuery("SELECT user_id FROM lookup_tasks WHERE id=${task.id}")
                 assertTrue(result.next())
                 assertEquals(user.id, result.getInt(1))
+            }
+        }
+
+        on("completing a task") {
+            val user = createUser(PhoneNumber("+18885550123"))
+            val task = createTask(user, someTime, someOtherTime)
+            completeTask(task)
+
+            it("changes the user in the database") {
+                val status = connection.createStatement()
+                        .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
+                        .getString("status")
+                assertEquals(LookupTaskStatus.COMPLETED, LookupTaskStatus.valueOf(status))
             }
         }
 
