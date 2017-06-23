@@ -15,8 +15,6 @@ import java.io.File
 import java.io.InputStream
 import java.security.Security
 
-typealias RawKey = ByteArray
-
 interface SignalAPI {
     /**
      * Query the Signal server for the identity keys associated with the given phone number
