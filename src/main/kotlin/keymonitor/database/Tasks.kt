@@ -4,7 +4,7 @@ import java.sql.SQLException
 import java.time.Instant
 
 /** Defines the status of this task */
-enum class LookupTaskStatus { PENDING, COMPLETED }
+enum class LookupTaskStatus { PENDING, COMPLETED, EXPIRED }
 
 /** Represents a scheduled key lookup, backed by a database object */
 data class LookupTask(val id: Int,
@@ -47,15 +47,16 @@ fun createTask(user: User, notBefore: Instant, expires: Instant): LookupTask {
     return LookupTask(id, user, notBefore, expires, LookupTaskStatus.PENDING)
 }
 
-private val UPDATE_TASK_COMPLETED = "UPDATE lookup_tasks SET status = '${LookupTaskStatus.COMPLETED.name}' WHERE id = ?"
+private val UPDATE_TASK = "UPDATE lookup_tasks SET status = ? WHERE id = ?"
 
-/** Mark the given task as completed in the database */
-fun completeTask(task: LookupTask) {
-    val affected: Int = with(Database.connection.prepareStatement(UPDATE_TASK_COMPLETED)) {
-        setInt(1, task.id)
+/** Save changes to the given task's status to the database */
+fun LookupTask.save() {
+    val affected: Int = with(Database.connection.prepareStatement(UPDATE_TASK)) {
+        setString(1, status.toString())
+        setInt(2, id)
 
         executeUpdate()
     }
 
-    if (affected == 0) throw SQLException("failed at updating task ${task.id}")
+    if (affected == 0) throw SQLException("failed at updating task $id")
 }

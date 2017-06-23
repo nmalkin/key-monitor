@@ -76,12 +76,15 @@ class TaskTest : Spek({
             }
         }
 
-        on("completing a task") {
+        on("updating a task") {
             val user = createUser(PhoneNumber("+18885550123"))
             val task = createTask(user, someTime, someOtherTime)
-            completeTask(task)
+
 
             it("changes the user in the database") {
+                task.status = LookupTaskStatus.COMPLETED
+                task.save()
+
                 val status = connection.createStatement()
                         .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
                         .getString("status")
