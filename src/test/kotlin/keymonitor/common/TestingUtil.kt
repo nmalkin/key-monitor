@@ -3,6 +3,7 @@ package keymonitor.common
 import keymonitor.database.Database
 import keymonitor.database.setup
 import java.io.File
+import java.sql.ResultSet
 
 
 /**
@@ -20,4 +21,9 @@ fun useNewTestingDatabase() {
  */
 fun closeTestingDatabase() {
     Database.closeConnection()
+}
+
+/** Shorthand for executing a query with the current database connection */
+fun query(sql: String): ResultSet {
+    return Database.connection.createStatement().executeQuery(sql)
 }

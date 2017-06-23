@@ -1,11 +1,13 @@
 package keymonitor.lookup
 
-import keymonitor.common.PhoneNumber
+import keymonitor.database.Key
+import keymonitor.database.LookupTask
 
-
-fun main(args: Array<String>) {
-    val PHONE_NUMBER = PhoneNumber("+15105550123")
-    val api = SignalAPI.loadDefault()
-    val keys = api.lookup(PHONE_NUMBER)
-    keys.forEach { println(it) }
+/**
+ * Executes the given lookup task, saving the result to the database and returning a Key object
+ *
+ * At the end, the task will be marked as completed
+ */
+fun performLookup(task: LookupTask, api: SignalAPI): Key {
+    throw NotImplementedError()
 }

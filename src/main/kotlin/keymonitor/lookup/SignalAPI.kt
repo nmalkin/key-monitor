@@ -15,15 +15,24 @@ import java.io.File
 import java.io.InputStream
 import java.security.Security
 
-typealias Key = ByteArray
+typealias RawKey = ByteArray
 
-class SignalAPI(credentials: CredentialsProvider) {
+interface SignalAPI {
+    /**
+     * Query the Signal server for the identity keys associated with the given phone number
+     *
+     * @param phoneNumber The number to look up.
+     */
+    fun lookup(phoneNumber: PhoneNumber): Collection<RawKey>
+}
+
+class RealSignalServer(credentials: CredentialsProvider): SignalAPI {
     /** A factory for the Signal API */
     companion object {
         /** Return the default Signal API, based on the credentials preloaded on the system */
         fun loadDefault(): SignalAPI {
             val credentialsProvider = loadSignalCredentialsFromFile(CONFIGS.SIGNAL_PHONE_NUMBER)
-            return SignalAPI(credentialsProvider)
+            return RealSignalServer(credentialsProvider)
         }
     }
 
@@ -75,12 +84,7 @@ class SignalAPI(credentials: CredentialsProvider) {
      */
     val deviceId = SignalServiceAddress.DEFAULT_DEVICE_ID
 
-    /**
-     * Query the Signal server for the identity keys associated with the given phone number
-     *
-     * @param phoneNumber The number to look up.
-     */
-    fun lookup(phoneNumber: PhoneNumber): Collection<Key> {
+    override fun lookup(phoneNumber: PhoneNumber): Collection<RawKey> {
         // SignalServiceAddress takes a "e164 representation of a phone number."
         // Because it uses libsignal's validator, our PhoneNumber should already be in that formatt.
         val destination = SignalServiceAddress(phoneNumber.toString())
@@ -88,9 +92,9 @@ class SignalAPI(credentials: CredentialsProvider) {
         // Query the server
         val preKeys = socket.getPreKeys(destination, deviceId)
 
-        val keys: Collection<Key> = preKeys.map({ preKeyBundle ->
+        val keys: Collection<RawKey> = preKeys.map({ preKeyBundle ->
             val identityKey: IdentityKey = preKeyBundle.identityKey
-            val key: Key = identityKey.serialize()
+            val key: RawKey = identityKey.serialize()
 
             key
         })
