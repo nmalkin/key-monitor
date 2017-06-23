@@ -101,3 +101,23 @@ internal fun pendingTasks(cutoff: Instant = Instant.now()): Collection<LookupTas
 
     return tasks
 }
+
+/**
+ * Get all pending, unexpired tasks prior to the given cut-off
+ *
+ * If, in the process of retrieving these tasks, we come across any that have expired,
+ * they will be updated accordingly in the database.
+ */
+fun activeTasks(cutoff: Instant = Instant.now()): Collection<LookupTask> {
+    val pending = pendingTasks(cutoff)
+    val active = mutableSetOf<LookupTask>()
+    pending.forEach { task ->
+        if (task.pastExpiration(cutoff)) {
+            task.status = LookupTaskStatus.EXPIRED
+            task.save()
+        } else {
+            active.add(task)
+        }
+    }
+    return active
+}

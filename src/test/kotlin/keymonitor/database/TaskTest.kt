@@ -177,6 +177,39 @@ class TaskTest : Spek({
             }
         }
 
+        on("getting active tasks") {
+            val user = createUser(PhoneNumber("+18885550123"))
+
+            it("doesn't return expired tasks") {
+                val cutoff = someOtherTime.plusSeconds(123)
+                val expires = cutoff.minusSeconds(1)
+                val task = createTask(user, cutoff.minusSeconds(2), expires)
+
+                assertTrue(task.pastExpiration(cutoff))
+                assertTrue(pendingTasks(cutoff).contains(task))
+
+                assertFalse(activeTasks(cutoff).contains(task))
+            }
+
+            it("marks expired tasks as such in the database") {
+                val cutoff = someOtherTime.plusSeconds(123)
+                val expires = cutoff.minusSeconds(1)
+                val task = createTask(user, cutoff.minusSeconds(2), expires)
+
+                val before = connection.createStatement()
+                        .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
+                        .getString("status")
+                assertEquals(LookupTaskStatus.PENDING, LookupTaskStatus.valueOf(before))
+
+                activeTasks(cutoff)
+
+                val after = connection.createStatement()
+                        .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
+                        .getString("status")
+                assertEquals(LookupTaskStatus.EXPIRED, LookupTaskStatus.valueOf(after))
+            }
+        }
+
         afterGroup {
             closeTestingDatabase()
         }
