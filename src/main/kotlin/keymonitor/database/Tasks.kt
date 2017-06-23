@@ -8,7 +8,7 @@ enum class LookupTaskStatus { PENDING, COMPLETED, EXPIRED }
 
 /** Represents a scheduled key lookup, backed by a database object */
 data class LookupTask(val id: Int,
-                      val user: User,
+                      val userID: Int,
                       val notBefore: Instant,
                       val expires: Instant,
                       var status: LookupTaskStatus)
@@ -44,7 +44,7 @@ fun createTask(user: User, notBefore: Instant, expires: Instant): LookupTask {
     if (!keys.next()) throw SQLException("failed creating user (cannot access created ID)")
     val id = keys.getInt(1)
 
-    return LookupTask(id, user, notBefore, expires, LookupTaskStatus.PENDING)
+    return LookupTask(id, user.id, notBefore, expires, LookupTaskStatus.PENDING)
 }
 
 private val UPDATE_TASK = "UPDATE lookup_tasks SET status = ? WHERE id = ?"
@@ -59,4 +59,45 @@ fun LookupTask.save() {
     }
 
     if (affected == 0) throw SQLException("failed at updating task $id")
+}
+
+/**
+ * Returns true if the expiration time of this task has passed
+ *
+ * Important: this is independent of whether or not its status is LookupTaskStatus.EXPIRED
+ */
+fun LookupTask.pastExpiration(now: Instant = Instant.now()): Boolean {
+    return now.isAfter(expires)
+}
+
+private val SELECT_PENDING_TASKS = """SELECT * FROM lookup_tasks
+                                      WHERE status = '${LookupTaskStatus.PENDING.name}'
+                                      AND not_before < ?
+                                   """
+
+/**
+ * Get all tasks pending in the database, with their notBefore set to prior to the given cut-off
+ *
+ * For example, if it's 12:05, we we want all (pending) from 12:04 and earlier, but not anything after then.
+ */
+internal fun pendingTasks(cutoff: Instant = Instant.now()): Collection<LookupTask> {
+    val result = with(Database.connection.prepareStatement(SELECT_PENDING_TASKS)) {
+        setString(1, cutoff.toString())
+
+        executeQuery()
+    }
+
+    val tasks = mutableSetOf<LookupTask>()
+    while (result.next()) {
+        val taskID = result.getInt("id")
+
+        val task = LookupTask(taskID,
+                userID = result.getInt("user_id"),
+                notBefore = Instant.parse(result.getString("not_before")),
+                expires = Instant.parse(result.getString("expires")),
+                status = LookupTaskStatus.valueOf(result.getString("status")))
+        tasks.add(task)
+    }
+
+    return tasks
 }

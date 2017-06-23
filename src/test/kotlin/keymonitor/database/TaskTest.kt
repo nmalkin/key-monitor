@@ -11,6 +11,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -80,7 +81,6 @@ class TaskTest : Spek({
             val user = createUser(PhoneNumber("+18885550123"))
             val task = createTask(user, someTime, someOtherTime)
 
-
             it("changes the user in the database") {
                 task.status = LookupTaskStatus.COMPLETED
                 task.save()
@@ -89,6 +89,91 @@ class TaskTest : Spek({
                         .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
                         .getString("status")
                 assertEquals(LookupTaskStatus.COMPLETED, LookupTaskStatus.valueOf(status))
+            }
+        }
+
+        on("checking if a task is expired") {
+            val user = createUser(PhoneNumber("+18885550123"))
+
+            it("returns true if it is") {
+                val expires = someOtherTime.plusSeconds(1)
+                val task = createTask(user, someTime, expires)
+                val now = expires.plusMillis(1)
+                assertTrue(task.pastExpiration(now))
+            }
+
+            it("returns false if it isn't") {
+                val expires = someOtherTime.plusSeconds(1)
+                val task = createTask(user, someTime, expires)
+                val now = expires.minusMillis(1)
+                assertFalse(task.pastExpiration(now))
+            }
+
+            it("returns false (not expired) if it expires at this exact moment") {
+                val expires = someOtherTime.plusSeconds(1)
+                val task = createTask(user, someTime, expires)
+                val now = expires
+                assertFalse(task.pastExpiration(now))
+            }
+        }
+
+        on("getting pending tasks") {
+            val user = createUser(PhoneNumber("+18885550123"))
+
+            it("returns tasks whose status is actually pending") {
+                val pending = pendingTasks(Instant.EPOCH.minusSeconds(1))
+                pending.forEach { task ->
+                    val status = connection.createStatement()
+                            .executeQuery("SELECT status FROM lookup_tasks WHERE id = ${task.id}")
+                            .getString("status")
+                    assertEquals(LookupTaskStatus.PENDING, LookupTaskStatus.valueOf(status))
+                }
+            }
+
+            it("returns all tasks, if the cut-off is set to be sufficiently large") {
+                val pending = pendingTasks(someOtherTime.plusSeconds(1_000_000L))
+                val count = connection.createStatement()
+                        .executeQuery("SELECT COUNT(*) FROM lookup_tasks WHERE status = '${LookupTaskStatus.PENDING.name}'")
+                        .getInt(1)
+                assertEquals(count, pending.size)
+            }
+
+            it("doesn't return any tasks before the cut-off") {
+                // Make sure we have some tasks before and after the cut-off
+                val cutoff = Instant.EPOCH.plusSeconds(60)
+                val task1 = createTask(user, cutoff.minusSeconds(1), someOtherTime)
+                val task2 = createTask(user, cutoff.plusSeconds(1), someOtherTime)
+
+                val pending = pendingTasks(cutoff)
+
+                // Check for our specific tasks
+                assertTrue(pending.contains(task1))
+                assertFalse(pending.contains(task2))
+
+                // Check the remaining tasks
+                pending.forEach { task ->
+                    assertTrue(task.notBefore.isBefore(cutoff))
+                }
+            }
+
+            it("returns tasks past their expiry time, if they haven't been marked as such") {
+                val cutoff = someOtherTime.plusSeconds(123)
+                val expires = cutoff.minusSeconds(1) // expired already
+                val task = createTask(user, cutoff.minusSeconds(2), expires)
+                // Sanity check: this task has expired
+                assertTrue(task.pastExpiration(cutoff))
+
+                val pending = pendingTasks(cutoff)
+                assertTrue(pending.contains(task))
+            }
+
+            it("doesn't return tasks that have been marked as expired") {
+                val task = createTask(user, someTime, someOtherTime)
+                task.status = LookupTaskStatus.EXPIRED
+                task.save()
+
+                val pending = pendingTasks(Instant.EPOCH)
+                assertFalse(pending.contains(task))
             }
         }
 
