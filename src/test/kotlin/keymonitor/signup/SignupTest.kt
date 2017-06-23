@@ -3,10 +3,7 @@ package keymonitor.signup
 import keymonitor.common.PhoneNumber
 import keymonitor.common.closeTestingDatabase
 import keymonitor.common.useNewTestingDatabase
-import keymonitor.database.Database
-import keymonitor.database.EmailStatus
-import keymonitor.database.UserStatus
-import keymonitor.database.save
+import keymonitor.database.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -79,7 +76,7 @@ class SignupTest : Spek({
             }
 
             it("sets the user to be active even if they're currently inactive") {
-                val user = newRegistration.user
+                val user = getUser(newRegistration.userID)!!
                 user.status = UserStatus.DEACTIVATED
                 user.save()
 

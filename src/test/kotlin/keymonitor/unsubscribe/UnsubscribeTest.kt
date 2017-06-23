@@ -49,7 +49,7 @@ class UnsubscribeTest : Spek({
                 processUnsubscribe(email.unsubscribeToken)
 
                 val result = connection.createStatement()
-                        .executeQuery("SELECT account_status FROM users WHERE id = ${email.user.id}")
+                        .executeQuery("SELECT account_status FROM users WHERE id = ${email.userID}")
                 assertTrue(result.next())
                 assertEquals(UserStatus.DEACTIVATED,
                         UserStatus.valueOf(result.getString("account_status")))

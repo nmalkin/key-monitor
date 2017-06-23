@@ -1,9 +1,6 @@
 package keymonitor.unsubscribe
 
-import keymonitor.database.EmailStatus
-import keymonitor.database.UserStatus
-import keymonitor.database.getEmail
-import keymonitor.database.save
+import keymonitor.database.*
 
 
 enum class UnsubscribeResult { SUCCESS, FAIL }
@@ -22,8 +19,9 @@ fun processUnsubscribe(unsubscribeToken: String): UnsubscribeResult {
     email.status = EmailStatus.UNSUBSCRIBED
     email.save()
 
-    email.user.status = UserStatus.DEACTIVATED
-    email.user.save()
+    val user = getUser(email.userID) ?: return UnsubscribeResult.FAIL
+    user.status = UserStatus.DEACTIVATED
+    user.save()
 
     return UnsubscribeResult.SUCCESS
 }

@@ -13,7 +13,7 @@ enum class EmailStatus { ACTIVE, REPLACED, UNSUBSCRIBED }
  * The `status` of the address can be changed; all other fields are immutable.
  */
 data class Email(val id: Int,
-                 val user: User,
+                 val userID: Int,
                  val email: String,
                  var status: EmailStatus,
                  val unsubscribeToken: String)
@@ -67,7 +67,7 @@ fun addEmail(user: User, email: String): Email {
     val id = keys.getInt(1)
 
     // Set up a new Email object
-    return Email(id, user, email, EmailStatus.ACTIVE, unsubscribeToken)
+    return Email(id, user.id, email, EmailStatus.ACTIVE, unsubscribeToken)
 }
 
 private val GET_EMAIL = "SELECT * FROM emails WHERE user = ? AND email_status = '${EmailStatus.ACTIVE.name}'"
@@ -92,7 +92,7 @@ fun getActiveEmail(user: User): Email? {
     if (!result.next()) return null
 
     val email = Email(result.getInt("id"),
-            user,
+            user.id,
             result.getString("email"),
             EmailStatus.ACTIVE,
             result.getString("unsubscribe_token"))
@@ -120,15 +120,8 @@ fun getEmail(unsubscribeToken: String): Email? {
     val result = statement.executeQuery()
     if (!result.next()) return null
 
-    val userID = result.getInt("user")
-    // Retrieve the full user information based on their ID.
-    // We need their full data to construct the Email object, but
-    // TODO: if User fields were lazy-loaded, the ID would suffice
-    val user = getUser(userID)
-            ?: throw RuntimeException("no user found for email address")
-
     val email = Email(result.getInt("id"),
-            user,
+            result.getInt("user"),
             result.getString("email"),
             EmailStatus.valueOf(result.getString("email_status")),
             result.getString("unsubscribe_token"))
