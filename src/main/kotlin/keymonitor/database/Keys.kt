@@ -1,5 +1,6 @@
 package keymonitor.database
 
+import java.sql.ResultSet
 import java.time.Instant
 
 val CREATE_KEY_TABLE =
@@ -82,6 +83,24 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
             value = value)
 }
 
+/**
+ * Given a ResultSet advanced to a valid row, parses its values into a Key object
+ *
+ * "Advanced to a valid row" means, prior to calling this, `result.next()` should've returned true.
+ *
+ * @throws java.sql.SQLException if no data is actually available at this point in the ResultSet
+ */
+private fun rowToKey(row: ResultSet): Key {
+    return Key(row.getInt("id"),
+            taskID = row.getInt("task_id"),
+            userID = row.getInt("user_id"),
+            lookupTime = Instant.parse(row.getString("lookup_time")),
+            lookupPhone = row.getString("lookup_phone"),
+            lookupIP = row.getString("lookup_ip"),
+            _status = KeyStatus.valueOf(row.getString("status")),
+            value = row.getString("value"))
+}
+
 private val SELECT_LAST_KEY = "SELECT * FROM keys WHERE status = ? AND user_id = ? ORDER BY id DESC LIMIT 1"
 
 /**
@@ -101,12 +120,5 @@ fun getLastKey(userID: Int, status: KeyStatus): Key? {
 
     if (!result.next()) return null
 
-    return Key(result.getInt("id"),
-            taskID = result.getInt("task_id"),
-            userID = userID,
-            lookupTime = Instant.parse(result.getString("lookup_time")),
-            lookupPhone = result.getString("lookup_phone"),
-            lookupIP = result.getString("lookup_ip"),
-            _status = KeyStatus.valueOf(result.getString("status")),
-            value = result.getString("value"))
+    return rowToKey(result)
 }
