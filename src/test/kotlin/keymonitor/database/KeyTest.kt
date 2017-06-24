@@ -61,13 +61,12 @@ class KeyTest : Spek({
         }
 
         on("updating a key") {
-            it("changes the user in the database") {
+            it("changes the user in the database automatically") {
                 val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someTime)
                 val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
                 key.status = KeyStatus.CHECKED
-                key.save()
 
                 val status = query("SELECT status FROM keys WHERE id = ${task.id}").getString("status")
                 assertEquals(KeyStatus.CHECKED, KeyStatus.valueOf(status))

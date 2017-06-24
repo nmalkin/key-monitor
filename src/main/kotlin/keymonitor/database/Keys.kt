@@ -2,19 +2,6 @@ package keymonitor.database
 
 import java.time.Instant
 
-/** Represents whether they has been compared to previous versions for changes */
-enum class KeyStatus { UNCHECKED, CHECKED }
-
-/** Represents the results of a key lookup */
-data class Key(val id: Int,
-               val taskID: Int,
-               val userID: Int,
-               val lookupTime: Instant,
-               val lookupPhone: String,
-               val lookupIP: String,
-               var status: KeyStatus,
-               val value: String)
-
 val CREATE_KEY_TABLE =
         """CREATE TABLE IF NOT EXISTS keys (
             id INTEGER PRIMARY KEY,
@@ -31,6 +18,38 @@ val CREATE_KEY_TABLE =
             FOREIGN KEY(user_id) REFERENCES users(id)
             )
         """
+
+private val UPDATE_KEY = "UPDATE KEYS SET status = ? WHERE id = ?"
+
+/** Represents whether they has been compared to previous versions for changes */
+enum class KeyStatus { UNCHECKED, CHECKED }
+
+/** Represents the results of a key lookup */
+data class Key(val id: Int,
+               val taskID: Int,
+               val userID: Int,
+               val lookupTime: Instant,
+               val lookupPhone: String,
+               val lookupIP: String,
+               private var _status: KeyStatus,
+               val value: String) {
+
+    /** Saves changes to the key's status */
+    var status: KeyStatus
+        get() = _status
+        set(value) {
+            _status = value
+
+            val rowsAffected = with(Database.connection.prepareStatement(UPDATE_KEY)) {
+                setString(1, _status.toString())
+                setInt(2, id)
+
+                executeUpdate()
+            }
+
+            if (rowsAffected == 0) throw DataStateError("failed at updating key $id")
+        }
+}
 
 private val INSERT_KEY = "INSERT INTO keys VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?)"
 
@@ -59,20 +78,6 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
             lookupTime = lookupTime,
             lookupPhone = lookupPhone,
             lookupIP = lookupIP,
-            status = KeyStatus.UNCHECKED,
+            _status = KeyStatus.UNCHECKED,
             value = value)
-}
-
-private val UPDATE_KEY = "UPDATE KEYS SET status = ? WHERE id = ?"
-
-/** Saves changes to the key's status */
-fun Key.save() {
-    val rowsAffected = with(Database.connection.prepareStatement(UPDATE_KEY)) {
-        setString(1, status.toString())
-        setInt(2, id)
-
-        executeUpdate()
-    }
-
-    if (rowsAffected == 0) throw DataStateError("failed at updating key $id")
 }
