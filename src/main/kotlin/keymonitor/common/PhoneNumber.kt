@@ -27,7 +27,7 @@ open class PhoneNumber(val number: String) {
     }
 
     override fun equals(other: Any?): Boolean {
-        if(other is PhoneNumber) {
+        if (other is PhoneNumber) {
             return number == other.number
         } else {
             return false

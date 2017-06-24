@@ -27,7 +27,7 @@ interface SignalAPI {
     val user: String
 }
 
-class RealSignalServer(val credentials: CredentialsProvider): SignalAPI {
+class RealSignalServer(val credentials: CredentialsProvider) : SignalAPI {
     /** A factory for the Signal API */
     companion object {
         /** Return the default Signal API, based on the credentials preloaded on the system */

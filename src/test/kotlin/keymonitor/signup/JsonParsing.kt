@@ -22,7 +22,7 @@ class JsonParsingTest : Spek({
     describe("signal-cli JSON output parsing") {
         on("parsing an entire file") {
             val testFilePath = JsonParsingTest::class.java.getResource("good_log.txt").toURI()
-                ?: throw RuntimeException("can't find test file")
+                    ?: throw RuntimeException("can't find test file")
             val goodFile = File(testFilePath)
 
             val messages = parseJsonFile(goodFile)

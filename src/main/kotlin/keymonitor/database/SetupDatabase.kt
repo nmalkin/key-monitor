@@ -23,9 +23,9 @@ fun setup(verbose: Boolean = false) {
     val statement = Database.connection.createStatement()
 
     for (table in TABLES) {
-        if(verbose) println(table)
+        if (verbose) println(table)
         statement.executeUpdate(table)
     }
 
-    if(verbose) println("Done!")
+    if (verbose) println("Done!")
 }
