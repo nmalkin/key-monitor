@@ -2,18 +2,14 @@ package keymonitor.database
 
 
 import keymonitor.common.PhoneNumber
-import keymonitor.common.closeTestingDatabase
 import keymonitor.common.query
 import keymonitor.common.useNewTestingDatabase
-import keymonitor.database.Database.connection
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.time.Instant
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 

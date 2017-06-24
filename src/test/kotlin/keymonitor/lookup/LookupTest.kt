@@ -6,7 +6,10 @@ import keymonitor.common.PhoneNumber
 import keymonitor.common.closeTestingDatabase
 import keymonitor.common.query
 import keymonitor.common.useNewTestingDatabase
-import keymonitor.database.*
+import keymonitor.database.KeyStatus
+import keymonitor.database.LookupTaskStatus
+import keymonitor.database.createTask
+import keymonitor.database.createUser
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
