@@ -34,3 +34,10 @@ fun performLookup(task: LookupTask, api: SignalAPI): Key {
 
     return key
 }
+
+/** Performs a lookup of all active tasks */
+fun run() {
+    val api = RealSignalServer.loadDefault()
+    val tasks = activeTasks()
+    tasks.forEach { performLookup(it, api) }
+}
