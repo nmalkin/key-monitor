@@ -12,7 +12,7 @@ data class Key(val id: Int,
                val lookupTime: Instant,
                val lookupPhone: String,
                val lookupIP: String,
-               val status: KeyStatus,
+               var status: KeyStatus,
                val value: String)
 
 val CREATE_KEY_TABLE =
@@ -61,4 +61,18 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
             lookupIP = lookupIP,
             status = KeyStatus.UNCHECKED,
             value = value)
+}
+
+private val UPDATE_KEY = "UPDATE KEYS SET status = ? WHERE id = ?"
+
+/** Saves changes to the key's status */
+fun Key.save() {
+    val rowsAffected = with(Database.connection.prepareStatement(UPDATE_KEY)) {
+        setString(1, status.toString())
+        setInt(2, id)
+
+        executeUpdate()
+    }
+
+    if (rowsAffected == 0) throw DataStateError("failed at updating key $id")
 }
