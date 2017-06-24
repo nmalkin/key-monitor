@@ -11,6 +11,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -114,6 +115,26 @@ class KeyTest : Spek({
                 saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
                 assertNull(getLastKey(user.id, KeyStatus.CHANGE_NOTIFIED))
+            }
+        }
+
+        on("selecting all matching key") {
+            val user = createUser(PhoneNumber("+18885550123"))
+            val task = createTask(user, someTime, someTime)
+            val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+            val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+            key2.status = KeyStatus.NO_CHANGE
+            val key3 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
+            val newKeys = getAll(KeyStatus.NEW)
+
+            it("returns the right keys") {
+                assertTrue(newKeys.contains(key1))
+                assertTrue(newKeys.contains(key3))
+            }
+
+            it("doesn't return the wrong keys") {
+                assertFalse(newKeys.contains(key2))
             }
         }
 

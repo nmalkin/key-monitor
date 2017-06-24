@@ -122,3 +122,23 @@ fun getLastKey(userID: Int, status: KeyStatus): Key? {
 
     return rowToKey(result)
 }
+
+private val SELECT_ALL_WITH_STATUS = "SELECT * FROM keys where STATUS = ?"
+
+/**
+ * Return all keys with the given status
+ */
+fun getAll(status: KeyStatus): Collection<Key> {
+    val result = with(Database.connection.prepareStatement(SELECT_ALL_WITH_STATUS)) {
+        setString(1, status.name)
+
+        executeQuery()
+    }
+
+    val keys = mutableListOf<Key>()
+    while (result.next()) {
+        keys.add(rowToKey(result))
+    }
+
+    return keys
+}
