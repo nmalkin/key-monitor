@@ -61,10 +61,10 @@ class LookupTest : Spek({
                 val task = createTask(user, someTime, someOtherTime)
 
                 val key = performLookup(task, api)
-                assertEquals(KeyStatus.UNCHECKED, key.status)
+                assertEquals(KeyStatus.NEW, key.status)
 
                 val status = query("SELECT status FROM keys WHERE id = ${key.id}").getString("status")
-                assertEquals(KeyStatus.UNCHECKED, KeyStatus.valueOf(status))
+                assertEquals(KeyStatus.NEW, KeyStatus.valueOf(status))
             }
 
             it("marks the lookup task as completed") {

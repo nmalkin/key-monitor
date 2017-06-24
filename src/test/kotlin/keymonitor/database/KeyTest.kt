@@ -56,7 +56,7 @@ class KeyTest : Spek({
                 val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
                 val status = query("SELECT status FROM keys WHERE id = ${key.id}").getString("status")
-                assertEquals(KeyStatus.UNCHECKED, KeyStatus.valueOf(status))
+                assertEquals(KeyStatus.NEW, KeyStatus.valueOf(status))
             }
         }
 
@@ -66,10 +66,10 @@ class KeyTest : Spek({
                 val task = createTask(user, someTime, someTime)
                 val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                key.status = KeyStatus.CHECKED
+                key.status = KeyStatus.NO_CHANGE
 
                 val status = query("SELECT status FROM keys WHERE id = ${task.id}").getString("status")
-                assertEquals(KeyStatus.CHECKED, KeyStatus.valueOf(status))
+                assertEquals(KeyStatus.NO_CHANGE, KeyStatus.valueOf(status))
             }
         }
     }
