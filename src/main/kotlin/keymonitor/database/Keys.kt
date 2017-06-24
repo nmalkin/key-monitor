@@ -23,7 +23,7 @@ val CREATE_KEY_TABLE =
 private val UPDATE_KEY = "UPDATE KEYS SET status = ? WHERE id = ?"
 
 /** Represents whether they has been compared to previous versions for changes */
-enum class KeyStatus { NEW, NO_CHANGE, CHANGE_DETECTED, CHANGE_NOTIFIED }
+enum class KeyStatus { UNCHECKED, CHECKED }
 
 /** Represents the results of a key lookup */
 data class Key(val id: Int,
@@ -35,9 +35,9 @@ data class Key(val id: Int,
                private var _status: KeyStatus,
                val value: String) {
 
+    /** Saves changes to the key's status */
     var status: KeyStatus
         get() = _status
-        /** Changes the key's status and update it in the database */
         set(value) {
             _status = value
 
@@ -62,7 +62,7 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
         setString(3, lookupTime.toString())
         setString(4, lookupPhone)
         setString(5, lookupIP)
-        setString(6, KeyStatus.NEW.name)
+        setString(6, KeyStatus.UNCHECKED.name)
         setString(7, value)
         setString(8, Instant.now().toString()) // created_at
 
@@ -79,7 +79,7 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
             lookupTime = lookupTime,
             lookupPhone = lookupPhone,
             lookupIP = lookupIP,
-            _status = KeyStatus.NEW,
+            _status = KeyStatus.UNCHECKED,
             value = value)
 }
 
