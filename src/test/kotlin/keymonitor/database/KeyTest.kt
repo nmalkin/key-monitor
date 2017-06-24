@@ -2,6 +2,7 @@ package keymonitor.database
 
 
 import keymonitor.common.PhoneNumber
+import keymonitor.common.closeTestingDatabase
 import keymonitor.common.query
 import keymonitor.common.useNewTestingDatabase
 import org.jetbrains.spek.api.Spek
@@ -10,6 +11,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
@@ -45,6 +47,8 @@ class KeyTest : Spek({
                 val result = query("SELECT * FROM keys WHERE id = ${key.id}")
                 assertTrue(result.next())
 
+                assertEquals(user.id, result.getInt("user_id"))
+                assertEquals(task.id, result.getInt("task_id"))
                 assertEquals(ip, result.getString("lookup_ip"))
                 assertEquals(phoneNumber.toString(), result.getString("lookup_phone"))
                 assertEquals(keyValue, result.getString("value"))
@@ -71,6 +75,50 @@ class KeyTest : Spek({
                 val status = query("SELECT status FROM keys WHERE id = ${task.id}").getString("status")
                 assertEquals(KeyStatus.NO_CHANGE, KeyStatus.valueOf(status))
             }
+        }
+
+        on("selecting the last key") {
+            it("returns the right key") {
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user, someTime, someTime)
+                val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                key1.status = KeyStatus.NO_CHANGE
+                val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
+                assertEquals(key1, getLastKey(user.id, KeyStatus.NO_CHANGE))
+                assertEquals(key2, getLastKey(user.id, KeyStatus.NEW))
+            }
+
+            it("returns a key with the right values") {
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user, someTime, someTime)
+                val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
+                val lastKey = getLastKey(user.id, KeyStatus.NEW)
+
+                assertEquals(key, lastKey)
+            }
+
+            it("selects the last one when multiple are available") {
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user, someTime, someTime)
+                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
+                assertEquals(key2, getLastKey(user.id, KeyStatus.NEW))
+            }
+
+            it("returns null if no key was found") {
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user, someTime, someTime)
+                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
+                assertNull(getLastKey(user.id, KeyStatus.CHANGE_NOTIFIED))
+            }
+        }
+
+        afterGroup {
+            closeTestingDatabase()
         }
     }
 })

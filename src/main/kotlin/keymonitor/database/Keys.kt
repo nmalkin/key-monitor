@@ -81,3 +81,32 @@ fun saveKey(task: LookupTask, lookupTime: Instant, lookupPhone: String, lookupIP
             _status = KeyStatus.NEW,
             value = value)
 }
+
+private val SELECT_LAST_KEY = "SELECT * FROM keys WHERE status = ? AND user_id = ? ORDER BY id DESC LIMIT 1"
+
+/**
+ * Return the last key in the database with the give parameters
+ *
+ * @param userID the user ID of the key's owner
+ * @param status the status of the key
+ * @return the key, or null if none was found
+ */
+fun getLastKey(userID: Int, status: KeyStatus): Key? {
+    val result = with(Database.connection.prepareStatement(SELECT_LAST_KEY)) {
+        setString(1, status.name)
+        setInt(2, userID)
+
+        executeQuery()
+    }
+
+    if (!result.next()) return null
+
+    return Key(result.getInt("id"),
+            taskID = result.getInt("task_id"),
+            userID = userID,
+            lookupTime = Instant.parse(result.getString("lookup_time")),
+            lookupPhone = result.getString("lookup_phone"),
+            lookupIP = result.getString("lookup_ip"),
+            _status = KeyStatus.valueOf(result.getString("status")),
+            value = result.getString("value"))
+}
