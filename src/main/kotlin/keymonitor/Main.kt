@@ -12,6 +12,9 @@ class MainCommand {
     var help: Boolean = false
 }
 
+@Parameters(commandDescription = "Check keys for changes")
+class CheckKeysCommand
+
 @Parameters(commandDescription = "Look up keys for all pending tasks")
 class LookupCommand
 
@@ -31,6 +34,7 @@ fun main(args: Array<String>) {
     val mainCommand = MainCommand()
     val commands = JCommander.newBuilder()
             ?.addObject(mainCommand)
+            ?.addCommand("check", CheckKeysCommand())
             ?.addCommand("lookup", LookupCommand())
             ?.addCommand("schedule", ScheduleCommand())
             ?.addCommand("setup-database", SetupDatabaseCommand())
@@ -46,6 +50,7 @@ fun main(args: Array<String>) {
     }
 
     when (commands.parsedCommand) {
+        "check" -> keymonitor.change.run()
         "lookup" -> keymonitor.lookup.run()
         "schedule" -> keymonitor.schedule.run()
         "setup-database" -> keymonitor.database.setup(verbose = true)
