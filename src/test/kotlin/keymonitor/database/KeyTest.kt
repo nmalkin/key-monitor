@@ -35,7 +35,7 @@ class KeyTest : Spek({
                 val task = createTask(user, someTime, someTime)
                 saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                val countAfter = query("SELECT COUNT(*) FROM lookup_tasks").getInt(1)
+                val countAfter = query("SELECT COUNT(*) FROM keys").getInt(1)
 
                 assertEquals(countBefore + 1, countAfter)
             }
