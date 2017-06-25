@@ -10,7 +10,8 @@ private val TABLES = listOf(
         CREATE_USER_TABLE,
         CREATE_EMAIL_TABLE,
         CREATE_TASK_TABLE,
-        CREATE_KEY_TABLE
+        CREATE_KEY_TABLE,
+        CREATE_CHANGE_TABLE
 )
 
 /**
