@@ -1,6 +1,9 @@
 package keymonitor.change
 
 import keymonitor.database.Key
+import keymonitor.database.KeyStatus
+import keymonitor.database.getLastCheckedKey
+import keymonitor.database.saveChange
 
 
 /** Return true if the values have changed from one key to the next */
@@ -23,5 +26,16 @@ fun keyChanged(old: Key, new: Key): Boolean {
  * @return whether or not a change was detected
  */
 fun checkForChanges(key: Key): Boolean {
-    throw NotImplementedError()
+    val userID = key.userID
+    val lastKey = getLastCheckedKey(userID)
+
+    var changed = false
+
+    if (lastKey != null && keyChanged(lastKey, key)) {
+        changed = true
+        saveChange(userID, lastKey.id, key.id)
+    }
+
+    key.status = KeyStatus.CHECKED
+    return changed
 }
