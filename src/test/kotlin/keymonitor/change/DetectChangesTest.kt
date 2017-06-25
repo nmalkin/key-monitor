@@ -10,16 +10,13 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.time.Instant
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 
 private val phoneNumber = PhoneNumber("+18885550123")
 private val someTime = Instant.ofEpochSecond(1_000_000L)!!
 private val ip = "127.0.0.1"
 private val keyValue = "010203"
-private val keyValue2 = "A0B0C0"
 
 class DetectChangesTest : Spek({
     beforeGroup { useNewTestingDatabase() }
@@ -33,7 +30,7 @@ class DetectChangesTest : Spek({
 
             it("returns false") {
                 val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
-                assertFalse(checkForChanges(key2))
+                assertNull(checkForChanges(key2))
             }
 
             it("doesn't save any change objects") {
@@ -61,9 +58,9 @@ class DetectChangesTest : Spek({
             val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
             key1.status = KeyStatus.CHECKED
 
-            it("returns true") {
+            it("detects the change") {
                 val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "010201")
-                assertTrue(checkForChanges(keyNew))
+                assertNotNull(checkForChanges(keyNew))
             }
 
             it("adds a new change object to the database") {
@@ -82,18 +79,19 @@ class DetectChangesTest : Spek({
                 val result1 = query("SELECT * from changes WHERE new_key = ${keyNew.id}")
                 assertFalse(result1.next())
 
-                checkForChanges(keyNew)
+                val change = checkForChanges(keyNew) ?: throw AssertionError("expected change to be detected")
 
-                val result2 = query("SELECT * from changes WHERE new_key = ${keyNew.id}")
+                val result2 = query("SELECT * from changes WHERE id = ${change.id}")
                 assertTrue(result2.next())
                 assertEquals(keyOld.id, result2.getInt("last_key"))
+                assertEquals(keyNew.id, result2.getInt("new_key"))
             }
 
             it("sets the correct status on the new change object") {
                 val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "010206")
-                checkForChanges(keyNew)
+                val change = checkForChanges(keyNew) ?: throw AssertionError("expected change to be detected")
 
-                val status = query("SELECT status from changes WHERE new_key = ${keyNew.id}").getString("status")
+                val status = query("SELECT status from changes WHERE id = ${change.id}").getString("status")
                 assertEquals(KeyChangeStatus.NEW, KeyChangeStatus.valueOf(status))
             }
 
@@ -114,7 +112,7 @@ class DetectChangesTest : Spek({
                 val task = createTask(user.id, someTime, someTime)
                 val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                assertFalse(checkForChanges(keyNew))
+                assertNull(checkForChanges(keyNew))
             }
 
             it("doesn't save any change objects") {

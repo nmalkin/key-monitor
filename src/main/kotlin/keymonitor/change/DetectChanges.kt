@@ -1,9 +1,6 @@
 package keymonitor.change
 
-import keymonitor.database.Key
-import keymonitor.database.KeyStatus
-import keymonitor.database.getLastCheckedKey
-import keymonitor.database.saveChange
+import keymonitor.database.*
 
 
 /** Return true if the values have changed from one key to the next */
@@ -23,17 +20,16 @@ fun keyChanged(old: Key, new: Key): Boolean {
  * If there is no previous data for this key (i.e., it's the first time we're seeing the key from this user)
  * consider it as if no change has been detected.
  *
- * @return whether or not a change was detected
+ * @return the KeyChange object if a change was detected, or null if one wasn't
  */
-fun checkForChanges(key: Key): Boolean {
+fun checkForChanges(key: Key): KeyChange? {
     val userID = key.userID
     val lastKey = getLastCheckedKey(userID)
 
-    var changed = false
+    var changed: KeyChange? = null
 
     if (lastKey != null && keyChanged(lastKey, key)) {
-        changed = true
-        saveChange(userID, lastKey.id, key.id)
+        changed = saveChange(userID, lastKey.id, key.id)
     }
 
     key.status = KeyStatus.CHECKED
