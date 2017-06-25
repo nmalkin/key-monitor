@@ -84,18 +84,18 @@ class KeyTest : Spek({
                 val task = createTask(user, someTime, someTime)
                 val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
                 key1.status = KeyStatus.CHECKED
-                val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                assertEquals(key1, getLastKey(user.id, KeyStatus.CHECKED))
-                assertEquals(key2, getLastKey(user.id, KeyStatus.UNCHECKED))
+                assertEquals(key1.id, getLastCheckedKey(user.id)?.id)
             }
 
             it("returns a key with the right values") {
                 val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someTime)
                 val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                key.status = KeyStatus.CHECKED
 
-                val lastKey = getLastKey(user.id, KeyStatus.UNCHECKED)
+                val lastKey = getLastCheckedKey(user.id)
 
                 assertEquals(key, lastKey)
             }
@@ -103,18 +103,20 @@ class KeyTest : Spek({
             it("selects the last one when multiple are available") {
                 val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someTime)
-                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                key1.status = KeyStatus.CHECKED
                 val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                key2.status = KeyStatus.CHECKED
 
-                assertEquals(key2, getLastKey(user.id, KeyStatus.UNCHECKED))
+                assertEquals(key2, getLastCheckedKey(user.id))
             }
 
             it("returns null if no key was found") {
                 val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someTime)
-                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue) // key is UNCHECKED
 
-                assertNull(getLastKey(user.id, KeyStatus.CHECKED))
+                assertNull(getLastCheckedKey(user.id))
             }
         }
 

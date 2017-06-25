@@ -101,19 +101,17 @@ private fun rowToKey(row: ResultSet): Key {
             value = row.getString("value"))
 }
 
-private val SELECT_LAST_KEY = "SELECT * FROM keys WHERE status = ? AND user_id = ? ORDER BY id DESC LIMIT 1"
+private val SELECT_LAST_KEY = "SELECT * FROM keys WHERE status = '${KeyStatus.CHECKED.name}' AND user_id = ? ORDER BY id DESC LIMIT 1"
 
 /**
- * Return the last key in the database with the give parameters
+ * Return the last checked key in the database for the given user
  *
  * @param userID the user ID of the key's owner
- * @param status the status of the key
  * @return the key, or null if none was found
  */
-fun getLastKey(userID: Int, status: KeyStatus): Key? {
+fun getLastCheckedKey(userID: Int): Key? {
     val result = with(Database.connection.prepareStatement(SELECT_LAST_KEY)) {
-        setString(1, status.name)
-        setInt(2, userID)
+        setInt(1, userID)
 
         executeQuery()
     }
