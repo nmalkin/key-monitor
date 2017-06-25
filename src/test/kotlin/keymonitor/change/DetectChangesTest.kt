@@ -1,7 +1,9 @@
 package keymonitor.change
 
 import keymonitor.common.PhoneNumber
+import keymonitor.common.closeTestingDatabase
 import keymonitor.common.query
+import keymonitor.common.useNewTestingDatabase
 import keymonitor.database.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -20,11 +22,14 @@ private val keyValue = "010203"
 private val keyValue2 = "A0B0C0"
 
 class DetectChangesTest : Spek({
+    beforeGroup { useNewTestingDatabase() }
+
     describe("checking if keys changed") {
         on("getting a key that hasn't changed") {
             val user = createUser(PhoneNumber("+18885550123"))
             val task = createTask(user.id, someTime, someTime)
-            saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+            val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+            key1.status = KeyStatus.CHECKED
 
             it("returns false") {
                 val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
@@ -54,14 +59,15 @@ class DetectChangesTest : Spek({
             val user = createUser(PhoneNumber("+18885550123"))
             val task = createTask(user.id, someTime, someTime)
             val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+            key1.status = KeyStatus.CHECKED
 
             it("returns true") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue2)
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "010201")
                 assertTrue(checkForChanges(keyNew))
             }
 
             it("adds a new change object to the database") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue2)
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "010204")
                 val countBefore = query("SELECT COUNT(*) FROM changes").getInt(1)
                 checkForChanges(keyNew)
                 val countAfter = query("SELECT COUNT(*) FROM changes").getInt(1)
@@ -69,17 +75,25 @@ class DetectChangesTest : Spek({
             }
 
             it("creates a change object correctly referencing the two keys") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue2)
+                val keyOld = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                keyOld.status = KeyStatus.CHECKED
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "010205")
 
-                val result = query("SELECT * from keys WHERE id = ${keyNew.id}")
-                assertEquals(key1.id, result.getInt("last_key"))
-                assertEquals(keyNew.id, result.getInt("new_key"))
+                val result1 = query("SELECT * from changes WHERE new_key = ${keyNew.id}")
+                assertFalse(result1.next())
+
+                checkForChanges(keyNew)
+
+                val result2 = query("SELECT * from changes WHERE new_key = ${keyNew.id}")
+                assertTrue(result2.next())
+                assertEquals(keyOld.id, result2.getInt("last_key"))
             }
 
             it("sets the correct status on the new change object") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue2)
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "010206")
+                checkForChanges(keyNew)
 
-                val status = query("SELECT status from keys WHERE id = ${keyNew.id}").getString("status")
+                val status = query("SELECT status from changes WHERE new_key = ${keyNew.id}").getString("status")
                 assertEquals(KeyChangeStatus.NEW, KeyChangeStatus.valueOf(status))
             }
 
@@ -95,16 +109,19 @@ class DetectChangesTest : Spek({
         }
 
         on("getting a key that has no prior history") {
-            val user = createUser(PhoneNumber("+18885550123"))
-            val task = createTask(user.id, someTime, someTime)
-
             it("treats it as if no change has been detected") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "101112")
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user.id, someTime, someTime)
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
                 assertFalse(checkForChanges(keyNew))
             }
 
             it("doesn't save any change objects") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "101113")
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user.id, someTime, someTime)
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
                 val countBefore = query("SELECT COUNT(*) FROM changes").getInt(1)
                 checkForChanges(keyNew)
                 val countAfter = query("SELECT COUNT(*) FROM changes").getInt(1)
@@ -113,7 +130,10 @@ class DetectChangesTest : Spek({
 
 
             it("marks the key as having been checked") {
-                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, "101114")
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user.id, someTime, someTime)
+                val keyNew = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
                 assertEquals(KeyStatus.UNCHECKED, keyNew.status)
                 checkForChanges(keyNew)
                 assertEquals(KeyStatus.CHECKED, keyNew.status)
@@ -123,4 +143,6 @@ class DetectChangesTest : Spek({
             }
         }
     }
+
+    afterGroup { closeTestingDatabase() }
 })
