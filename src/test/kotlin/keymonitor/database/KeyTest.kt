@@ -83,11 +83,11 @@ class KeyTest : Spek({
                 val user = createUser(PhoneNumber("+18885550123"))
                 val task = createTask(user, someTime, someTime)
                 val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
-                key1.status = KeyStatus.NO_CHANGE
+                key1.status = KeyStatus.CHECKED
                 val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                assertEquals(key1, getLastKey(user.id, KeyStatus.NO_CHANGE))
-                assertEquals(key2, getLastKey(user.id, KeyStatus.NEW))
+                assertEquals(key1, getLastKey(user.id, KeyStatus.CHECKED))
+                assertEquals(key2, getLastKey(user.id, KeyStatus.UNCHECKED))
             }
 
             it("returns a key with the right values") {
@@ -95,7 +95,7 @@ class KeyTest : Spek({
                 val task = createTask(user, someTime, someTime)
                 val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                val lastKey = getLastKey(user.id, KeyStatus.NEW)
+                val lastKey = getLastKey(user.id, KeyStatus.UNCHECKED)
 
                 assertEquals(key, lastKey)
             }
@@ -106,7 +106,7 @@ class KeyTest : Spek({
                 saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
                 val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                assertEquals(key2, getLastKey(user.id, KeyStatus.NEW))
+                assertEquals(key2, getLastKey(user.id, KeyStatus.UNCHECKED))
             }
 
             it("returns null if no key was found") {
@@ -114,7 +114,7 @@ class KeyTest : Spek({
                 val task = createTask(user, someTime, someTime)
                 saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-                assertNull(getLastKey(user.id, KeyStatus.CHANGE_NOTIFIED))
+                assertNull(getLastKey(user.id, KeyStatus.CHECKED))
             }
         }
 
@@ -123,10 +123,10 @@ class KeyTest : Spek({
             val task = createTask(user, someTime, someTime)
             val key1 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
             val key2 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
-            key2.status = KeyStatus.NO_CHANGE
+            key2.status = KeyStatus.CHECKED
             val key3 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-            val newKeys = getAll(KeyStatus.NEW)
+            val newKeys = getAll(KeyStatus.UNCHECKED)
 
             it("returns the right keys") {
                 assertTrue(newKeys.contains(key1))
