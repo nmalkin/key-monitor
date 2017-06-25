@@ -4,7 +4,7 @@ import keymonitor.common.getRandomHex
 import java.util.*
 
 /** Enum representing whether the user wants to receive messages at this address. */
-enum class EmailStatus { ACTIVE, REPLACED, UNSUBSCRIBED }
+enum class EmailStatus { ACTIVE, UNSUBSCRIBED }
 
 /**
  * Represents an email address record in the database
@@ -72,33 +72,33 @@ fun addEmail(user: User, email: String): Email {
 private val GET_EMAIL = "SELECT * FROM emails WHERE user = ? AND email_status = '${EmailStatus.ACTIVE.name}'"
 
 /**
- * Look up and return the given user's *active* email
+ * Look up and return the given user's *active* emails
  *
  * An active email is one with a status of EmailStatus.ACTIVE
  *
- * A user can have zero active emails (for example, if they unsubscribed), or one active one.
- * There should never be more than one. (If there is, an exception is thrown.)
+ * A user can have zero active emails (for example, if they unsubscribed), or more.
  *
  * @param user the user to look up
- * @return the user's active email, or null if it doesn't exist
- * @throws RuntimeException if there are multiple active emails (this shouldn't happen)
+ * @return a list of the user's active email
  */
-fun getActiveEmail(user: User): Email? {
+fun getUserEmails(user: User): Collection<Email> {
     val statement = Database.connection.prepareStatement(GET_EMAIL)
     statement.setInt(1, user.id)
 
+    val emails = mutableListOf<Email>()
+
     val result = statement.executeQuery()
-    if (!result.next()) return null
+    while (result.next()) {
+        val email = Email(result.getInt("id"),
+                user.id,
+                result.getString("email"),
+                EmailStatus.ACTIVE,
+                result.getString("unsubscribe_token"))
 
-    val email = Email(result.getInt("id"),
-            user.id,
-            result.getString("email"),
-            EmailStatus.ACTIVE,
-            result.getString("unsubscribe_token"))
+        emails.add(email)
+    }
 
-    if (result.next()) throw DataStateError("more than one active email found for user ${user.id}")
-
-    return email
+    return emails
 }
 
 private val SELECT_EMAIL_BY_UNSUBSCRIBE_TOKEN =

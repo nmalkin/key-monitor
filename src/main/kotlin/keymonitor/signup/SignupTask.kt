@@ -66,11 +66,8 @@ fun run() {
  * Update database with newly received registration message
  *
  * - If the user is new, store them and their email in the database.
- * - If the user already exists, invalidate their current email, and store the new one.
- * - If the user already exists and so does the email, treat the new email like it's new.
- *     This is easiest, but may not be ideal;
- *     for example, it will result in duplicate emails being sent.
- *     TODO: decide if we actually want it to behave this way
+ * - If the user already exists, store the email, and associate it with the current user.
+ * - If the user already exists and so does the email, don't store the email.
  */
 internal fun processRegistration(registration: RegistrationMessage): Email {
     val (phoneNumber, email) = registration
@@ -79,20 +76,23 @@ internal fun processRegistration(registration: RegistrationMessage): Email {
     if (user == null) {
         // This is a new user. Save them to the database.
         user = createUser(phoneNumber)
-    } else {
-        // This user already exists. Do they have an active email?
-        val currentEmail = getActiveEmail(user)
-        if (currentEmail != null) {
-            // The active email should be deactivated; it will be replaced with the new one.
-            currentEmail.status = EmailStatus.REPLACED
-            currentEmail.save()
-        }
-
+    } else { // This user already exists.
         // If the user is currently deactivated (because they unsubscribed), reactivate them.
         if (user.status == UserStatus.DEACTIVATED) {
             user.status = UserStatus.ACTIVE
             user.save()
         }
+
+        // Is this email already stored?
+        getUserEmails(user).forEach { existingEmail ->
+            if (existingEmail.email == email) {
+                // The requested email already exists in our database and is active.
+                // We don't need to add a new one.
+                return existingEmail
+            }
+        }
+
+        // TODO: it may be good to notify existing active email(s) if a new one is added so that a user is always aware of the addresses associated with their account
     }
 
     val newEmail = addEmail(user, email)

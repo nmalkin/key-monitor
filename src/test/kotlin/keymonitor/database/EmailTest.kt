@@ -9,10 +9,7 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 
 private val phoneNumber = PhoneNumber("+18885550123")
@@ -53,7 +50,7 @@ class EmailTest : Spek({
                 val result = connection.createStatement()
                         .executeQuery("SELECT email FROM emails")
                 while (result.next()) {
-                    assertEquals(address.toString(), result.getString("email"))
+                    assertEquals(address, result.getString("email"))
                 }
             }
 
@@ -90,24 +87,41 @@ class EmailTest : Spek({
             }
         }
 
-        on("retrieving an email by the user") {
+        on("retrieving emails by the user") {
             // Clear the database, because the tests above left it in an invalid state
             connection.createStatement().executeUpdate("DELETE FROM emails WHERE user = 1")
-            // TODO: it may be cleaner to flush the entire database before starting these tests
-
-            addEmail(user!!, address)
 
             it("returns the right one") {
-                val email = getActiveEmail(user!!)
-                assertNotNull(email)
-                email!!
-                assertEquals(7, email.id) // TODO: it's hacky and brittle to rely on this specific ID
-                assertEquals(EmailStatus.ACTIVE, email.status)
+                val email = addEmail(user!!, address)
+
+                val emails = getUserEmails(user!!)
+                assertTrue(emails.isNotEmpty())
+                assertEquals(email, emails.first())
+                assertEquals(EmailStatus.ACTIVE, emails.first().status)
             }
 
-            it("returns null if it doesn't exist") {
+            it("allows for multiple active emails") {
+                val email1 = addEmail(user!!, address)
+                val email2 = addEmail(user!!, address)
+
+                val emails = getUserEmails(user!!)
+
+                assertTrue(emails.contains(email1))
+                assertTrue(emails.contains(email2))
+            }
+
+            it("doesn't return inactive emails") {
+                val email = addEmail(user!!, address)
+                email.status = EmailStatus.UNSUBSCRIBED
+                email.save()
+
+                val emails = getUserEmails(user!!)
+                assertFalse(emails.contains(email))
+            }
+
+            it("returns an empty collection if it doesn't exist") {
                 val fakeUser = User(9, phoneNumber, UserStatus.ACTIVE)
-                assertNull(getActiveEmail(fakeUser))
+                assertTrue(getUserEmails(fakeUser).isEmpty())
             }
         }
 
@@ -132,7 +146,7 @@ class EmailTest : Spek({
 
         on("updating an email status") {
             it("changes the value in the database") {
-                val email = getActiveEmail(user!!)!!
+                val email = getUserEmails(user!!).first()
                 email.status = EmailStatus.UNSUBSCRIBED
                 email.save()
 
