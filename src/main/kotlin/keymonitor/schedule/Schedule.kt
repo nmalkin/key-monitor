@@ -33,9 +33,8 @@ fun scheduleTaskForUser(user: User, startTime: Instant): LookupTask {
     val offset = random.nextInt(LOOKUP_FREQUENCY - 1) + 1
 
     val lookupTime = startTime.plus(Duration.ofMinutes(offset.toLong()))
-    val expires = lookupTime.plus(LOOKUP_INTERVAL)
 
-    val newTask = createTask(user, lookupTime, expires)
+    val newTask = createTask(user.id, lookupTime)
     return newTask
 }
 

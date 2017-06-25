@@ -1,5 +1,6 @@
 package keymonitor.database
 
+import keymonitor.schedule.LOOKUP_INTERVAL
 import java.time.Instant
 
 /** Defines the status of this task */
@@ -28,9 +29,9 @@ internal val CREATE_TASK_TABLE =
 private val INSERT_TASK = "INSERT INTO lookup_tasks VALUES(null, ?, ?, ?, ?, ?)"
 
 /** Create a task in the database with the provided parameters */
-fun createTask(user: User, notBefore: Instant, expires: Instant): LookupTask {
+fun createTask(userID: Int, notBefore: Instant, expires: Instant = notBefore.plus(LOOKUP_INTERVAL)): LookupTask {
     val keys = with(Database.connection.prepareStatement(INSERT_TASK)) {
-        setInt(1, user.id)
+        setInt(1, userID)
         setString(2, notBefore.toString())
         setString(3, expires.toString())
         setString(4, LookupTaskStatus.PENDING.name)
@@ -43,7 +44,7 @@ fun createTask(user: User, notBefore: Instant, expires: Instant): LookupTask {
     if (!keys.next()) throw DataStateError("failed creating user (cannot access created ID)")
     val id = keys.getInt(1)
 
-    return LookupTask(id, user.id, notBefore, expires, LookupTaskStatus.PENDING)
+    return LookupTask(id, userID, notBefore, expires, LookupTaskStatus.PENDING)
 }
 
 private val UPDATE_TASK = "UPDATE lookup_tasks SET status = ? WHERE id = ?"

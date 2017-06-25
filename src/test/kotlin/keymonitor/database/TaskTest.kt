@@ -15,6 +15,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@Deprecated("prefer createTask(userID, ...)")
+fun createTask(user: User, notBefore: Instant, expires: Instant): LookupTask {
+    return createTask(user.id, notBefore, expires)
+}
 
 private val someTime = Instant.EPOCH!!
 private val someOtherTime = Instant.ofEpochSecond(1_000_000L)!!

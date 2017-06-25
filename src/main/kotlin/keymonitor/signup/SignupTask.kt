@@ -5,6 +5,7 @@ import keymonitor.common.PhoneNumber
 import keymonitor.common.sendMessage
 import keymonitor.database.*
 import java.io.File
+import java.time.Instant
 
 private val REGISTRATION_SUBJECT = "Welcome to Key Monitor!"
 private val REGISTRATION_MESSAGE = """
@@ -50,6 +51,9 @@ fun run() {
     messages.forEach { message ->
         // Store the new user in the database
         val storedEmail = processRegistration(message)
+
+        // Schedule a key lookup to happen ASAP
+        createTask(storedEmail.userID, Instant.now())
 
         // Send confirmation message
         val unsubscribeLink = CONFIGS.UNSUBSCRIBE_SERVER + "unsubscribe?t=" + storedEmail.unsubscribeToken
