@@ -7,13 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import keymonitor.common.PhoneNumber
 import org.apache.commons.validator.routines.EmailValidator
 import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
 import java.util.stream.Collectors
 
 class JsonParsingException(line: String, message: String) : RuntimeException("$message in $line")
 
-fun parseJsonFile(file: File): Collection<RegistrationMessage> {
+
+fun parseJson(reader: BufferedReader): Collection<RegistrationMessage> {
     // Prepare to parse output
     val jsonParser = ObjectMapper(JsonFactory())
     val emailValidator = EmailValidator.getInstance()
@@ -28,7 +27,6 @@ fun parseJsonFile(file: File): Collection<RegistrationMessage> {
     }
 
     // Parse the file, filtering out any lines that don't return anything
-    val reader = BufferedReader(FileReader(file))
     val messages: MutableCollection<RegistrationMessage> = reader.lines()
             // Each line is parsed separately, because log file format is one JSON entry per line
             .map(::parse)
@@ -38,29 +36,30 @@ fun parseJsonFile(file: File): Collection<RegistrationMessage> {
     return messages
 }
 
-fun parseLine(mapper: ObjectMapper, emailValidator: EmailValidator, line: String): RegistrationMessage? {
+/**
+ * Parse a line of signal-cli output, which should contain a single message
+ *
+ * @return a RegistrationMessage containing the data extracted from the message
+ * @throws JsonParsingException if parsing or validation fails
+ */
+fun parseLine(mapper: ObjectMapper, emailValidator: EmailValidator, line: String): RegistrationMessage {
     val tree: JsonNode
     try {
         tree = mapper.readTree(line)
                 ?: throw JsonParsingException(line, "failed at parsing line as JSON")
     } catch (e: JsonParseException) {
         // Catch library's parse exception and re-throw as our own
-        throw(JsonParsingException(line, e.message!!))
+        throw JsonParsingException(line, e.message!!)
     }
 
     if (!tree.isObject) throw JsonParsingException(line, "expected object at top level")
 
-    // Lines with objects that have init or done fields are for debugging; they should be discarded.
-    if ((tree.get("init") != null) || (tree.get("done") != null)) {
-        return null
-    }
-
-    val number = tree.get("envelope")?.get("from")?.get("number")?.asText()
-            ?: throw JsonParsingException(line, "failed to find envelope.from.number")
+    val number = tree.get("envelope")?.get("source")?.asText()
+            ?: throw JsonParsingException(line, "failed to find envelope.source")
     val phoneNumber = PhoneNumber(number)
 
-    val body = tree.get("data")?.get("body")?.asText()?.trim()
-            ?: throw JsonParsingException(line, "failed to find data.body")
+    val body = tree.get("envelope")?.get("dataMessage")?.get("message")?.asText()?.trim()
+            ?: throw JsonParsingException(line, "failed to find dataMessage.message")
 
     // We expect the body to just be the user's email address.
     if (!emailValidator.isValid(body)) {

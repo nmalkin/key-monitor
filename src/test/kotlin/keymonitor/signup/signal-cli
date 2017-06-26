@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# A mock signal-cli implementation
+# Usage: signal-cli --username -- receive --json
+
+BASEDIR=$(dirname "$0")
+cat $BASEDIR/good_log.txt

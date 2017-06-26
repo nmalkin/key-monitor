@@ -8,14 +8,20 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileReader
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 fun assertParsingFails(parsing: () -> Unit) {
     assertFailsWith(JsonParsingException::class, parsing)
+}
+
+fun parseJsonFile(file: File): Collection<RegistrationMessage> {
+    val reader = BufferedReader(FileReader(file))
+    return parseJson(reader)
 }
 
 class JsonParsingTest : Spek({
@@ -51,21 +57,28 @@ class JsonParsingTest : Spek({
         val jsonParser = ObjectMapper(JsonFactory())
         val emailValidator = EmailValidator.getInstance()
 
-        it("accepts init debug statements") {
-            val result = parseLine(jsonParser, emailValidator, "{\"init\":true},")
-            assertNull(result)
+        it("rejects init debug statements") {
+            assertParsingFails {
+                parseLine(jsonParser, emailValidator, "{\"init\":true},")
+            }
         }
 
-        it("accepts done debug statements") {
-            val result = parseLine(jsonParser, emailValidator, "{\"done\":true}]")
-            assertNull(result)
+        it("rejects done debug statements") {
+            assertParsingFails {
+                parseLine(jsonParser, emailValidator, "{\"done\":true}]")
+            }
+        }
+
+        it("rejects the old style of JSON output") {
+            assertParsingFails {
+                val line = """{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:28:42.630Z"},"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310122630}},"""
+                parseLine(jsonParser, emailValidator, line)
+            }
         }
 
         it("correctly parses a message") {
-            val line = """{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:28:42.630Z"},"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310122630}},"""
+            val line = """{"envelope":{"source":"+14155550123","sourceDevice":1,"relay":null,"timestamp":1498495971928,"isReceipt":false,"dataMessage":{"timestamp":1498495971928,"message":" test@example.com  \n\n","expiresInSeconds":0,"attachments":[],"groupInfo":null},"syncMessage":null,"callMessage":null}}"""
             val result = parseLine(jsonParser, emailValidator, line)
-            assertNotNull(result)
-            result!!
 
             assertEquals(PhoneNumber("+14155550123"), result.phoneNumber)
             assertEquals("test@example.com", result.email)
@@ -79,12 +92,12 @@ class JsonParsingTest : Spek({
 
         it("fails if the JSON is missing fields") {
             assertParsingFails {
-                val line = """{"data":{"body":" test@example.com  \n\n\n\n","timestamp":1497310122630}},"""
+                val line = """{"envelope": {"dataMessage":{"message":" test@example.com  \n\n\n\n","timestamp":1497310122630}}"""
                 parseLine(jsonParser, emailValidator, line)
             }
 
             assertParsingFails {
-                val line = """{"envelope":{"legacyMessage":true,"from":{"number":"+14155550123","device":1},"type":{"number":3,"name":"prekey"},"timestamp":"2017-06-12T23:28:42.630Z"}},"""
+                val line = """{"envelope":{"source":"+14155550123","sourceDevice":1,"relay":null,"timestamp":1498495971928,"isReceipt":false}"""
                 parseLine(jsonParser, emailValidator, line)
             }
         }

@@ -4,7 +4,8 @@ import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
 import keymonitor.common.sendMessage
 import keymonitor.database.*
-import java.io.File
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.time.Instant
 
 private val REGISTRATION_SUBJECT = "Welcome to Key Monitor!"
@@ -31,21 +32,20 @@ If you did not subscribe to this service, please click the unsubscribe link abov
  * 3. Send them a notification message
  */
 fun run() {
-    // Create temporary file for the CLI to output to
-    val tempFile = File.createTempFile("signuptask.signal-cli", ".log")
-    tempFile.deleteOnExit()
-
-    // Run signal-cl and wait for it to finish
+    // Run signal-cli and wait for it to finish
     val process = Runtime.getRuntime()?.exec(arrayOf("signal-cli", "--username",
-            CONFIGS.SIGNAL_PHONE_NUMBER, "json",
-            "--logfile", tempFile.absolutePath,
+            CONFIGS.SIGNAL_PHONE_NUMBER,
+            "receive", "--json",
             "--ignore-attachments",
             "--timeout", "1"))
             ?: throw RuntimeException("failed to launch signal-cli subprocess")
     if (process.waitFor() != 0) throw RuntimeException("signal-cli halted with non-zero exit code")
 
+    // Capture the cli's output
+    var output = BufferedReader(InputStreamReader(process.inputStream))
+
     // Parse the signal-cli output for new subscription messages
-    val messages = parseJsonFile(tempFile)
+    val messages = parseJson(output)
 
     // Process each message
     messages.forEach { message ->
