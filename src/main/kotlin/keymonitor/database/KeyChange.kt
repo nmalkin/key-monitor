@@ -30,7 +30,7 @@ data class KeyChange(val id: Int,
 
     var status: KeyChangeStatus
         get() = _status
-        /** Saves changes to the key's status */
+        /** Saves changes to the status */
         set(value) {
             _status = value
 
@@ -59,7 +59,7 @@ fun saveChange(userID: Int, lastKeyID: Int, newKeyID: Int): KeyChange {
         generatedKeys
     }
 
-    if (!row.next()) throw DataStateError("failed creating user (cannot access created ID)")
+    if (!row.next()) throw DataStateError("failed creating key change (cannot access created ID)")
     val id = row.getInt(1)
 
     return KeyChange(id = id, userID = userID, lastKeyID = lastKeyID, newKeyID = newKeyID, _status = KeyChangeStatus.NEW)

@@ -62,7 +62,7 @@ fun addEmail(user: User, email: String): Email {
 
     // Get ID of newly created email
     val keys = statement.generatedKeys
-    if (!keys.next()) throw DataStateError("failed creating user (cannot access created ID)")
+    if (!keys.next()) throw DataStateError("failed creating email (cannot access created ID)")
     val id = keys.getInt(1)
 
     // Set up a new Email object

@@ -41,7 +41,7 @@ fun createTask(userID: Int, notBefore: Instant, expires: Instant = notBefore.plu
         generatedKeys
     }
 
-    if (!keys.next()) throw DataStateError("failed creating user (cannot access created ID)")
+    if (!keys.next()) throw DataStateError("failed creating task (cannot access created ID)")
     val id = keys.getInt(1)
 
     return LookupTask(id, userID, notBefore, expires, LookupTaskStatus.PENDING)
