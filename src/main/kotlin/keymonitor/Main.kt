@@ -18,6 +18,9 @@ class CheckKeysCommand
 @Parameters(commandDescription = "Look up keys for all pending tasks")
 class LookupCommand
 
+@Parameters(commandDescription = "Notify users about detected changes")
+class NotifyCommand
+
 @Parameters(commandDescription = "Generate lookup tasks")
 class ScheduleCommand
 
@@ -36,6 +39,7 @@ fun main(args: Array<String>) {
             ?.addObject(mainCommand)
             ?.addCommand("check", CheckKeysCommand())
             ?.addCommand("lookup", LookupCommand())
+            ?.addCommand("notify", NotifyCommand())
             ?.addCommand("schedule", ScheduleCommand())
             ?.addCommand("setup-database", SetupDatabaseCommand())
             ?.addCommand("signup", SignupCommand())
@@ -52,6 +56,7 @@ fun main(args: Array<String>) {
     when (commands.parsedCommand) {
         "check" -> keymonitor.change.run()
         "lookup" -> keymonitor.lookup.run()
+        "notify" -> keymonitor.notify.run()
         "schedule" -> keymonitor.schedule.run()
         "setup-database" -> keymonitor.database.setup(verbose = true)
         "signup" -> keymonitor.signup.run()
