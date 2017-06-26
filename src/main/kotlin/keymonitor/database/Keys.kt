@@ -101,6 +101,18 @@ private fun rowToKey(row: ResultSet): Key {
             value = row.getString("value"))
 }
 
+private val SELECT_KEY = "SELECT * FROM keys WHERE id = ?"
+
+/** Return the key with the given ID */
+fun getKey(keyID: Int): Key {
+    val result = with(Database.connection.prepareStatement(SELECT_KEY)) {
+        setInt(1, keyID)
+        executeQuery()
+    }
+    if (!result.next()) throw IllegalArgumentException("no key found with ID $keyID")
+    return rowToKey(result)
+}
+
 private val SELECT_LAST_KEY = "SELECT * FROM keys WHERE status = '${KeyStatus.CHECKED.name}' AND user_id = ? ORDER BY id DESC LIMIT 1"
 
 /**

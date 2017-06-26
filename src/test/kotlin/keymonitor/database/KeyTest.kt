@@ -10,10 +10,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.time.Instant
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 
 private val phoneNumber = PhoneNumber("+18885550123")
@@ -75,6 +72,23 @@ class KeyTest : Spek({
 
                 val status = query("SELECT status FROM keys WHERE id = ${task.id}").getString("status")
                 assertEquals(KeyStatus.CHECKED, KeyStatus.valueOf(status))
+            }
+        }
+
+        on("selecting a specific key") {
+            it("returns the right key") {
+                val user = createUser(PhoneNumber("+18885550123"))
+                val task = createTask(user, someTime, someTime)
+                val key = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+                saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
+
+                assertEquals(key, getKey(key.id))
+            }
+
+            it("throws an exception if called with an invalid key") {
+                assertFailsWith<IllegalArgumentException> {
+                    getKey(-999)
+                }
             }
         }
 
