@@ -78,19 +78,19 @@ private val GET_EMAIL = "SELECT * FROM emails WHERE user = ? AND email_status = 
  *
  * A user can have zero active emails (for example, if they unsubscribed), or more.
  *
- * @param user the user to look up
+ * @param userID the user to look up
  * @return a list of the user's active email
  */
-fun getUserEmails(user: User): Collection<Email> {
+fun getUserEmails(userID: Int): Collection<Email> {
     val statement = Database.connection.prepareStatement(GET_EMAIL)
-    statement.setInt(1, user.id)
+    statement.setInt(1, userID)
 
     val emails = mutableListOf<Email>()
 
     val result = statement.executeQuery()
     while (result.next()) {
         val email = Email(result.getInt("id"),
-                user.id,
+                userID,
                 result.getString("email"),
                 EmailStatus.ACTIVE,
                 result.getString("unsubscribe_token"))

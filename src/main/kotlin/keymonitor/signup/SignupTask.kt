@@ -84,7 +84,7 @@ internal fun processRegistration(registration: RegistrationMessage): Email {
         }
 
         // Is this email already stored?
-        getUserEmails(user).forEach { existingEmail ->
+        getUserEmails(user.id).forEach { existingEmail ->
             if (existingEmail.email == email) {
                 // The requested email already exists in our database and is active.
                 // We don't need to add a new one.

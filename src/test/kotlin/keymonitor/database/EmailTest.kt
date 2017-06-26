@@ -94,7 +94,7 @@ class EmailTest : Spek({
             it("returns the right one") {
                 val email = addEmail(user!!, address)
 
-                val emails = getUserEmails(user!!)
+                val emails = getUserEmails(user!!.id)
                 assertTrue(emails.isNotEmpty())
                 assertEquals(email, emails.first())
                 assertEquals(EmailStatus.ACTIVE, emails.first().status)
@@ -104,7 +104,7 @@ class EmailTest : Spek({
                 val email1 = addEmail(user!!, address)
                 val email2 = addEmail(user!!, address)
 
-                val emails = getUserEmails(user!!)
+                val emails = getUserEmails(user!!.id)
 
                 assertTrue(emails.contains(email1))
                 assertTrue(emails.contains(email2))
@@ -115,13 +115,13 @@ class EmailTest : Spek({
                 email.status = EmailStatus.UNSUBSCRIBED
                 email.save()
 
-                val emails = getUserEmails(user!!)
+                val emails = getUserEmails(user!!.id)
                 assertFalse(emails.contains(email))
             }
 
             it("returns an empty collection if it doesn't exist") {
                 val fakeUser = User(9, phoneNumber, UserStatus.ACTIVE)
-                assertTrue(getUserEmails(fakeUser).isEmpty())
+                assertTrue(getUserEmails(fakeUser.id).isEmpty())
             }
         }
 
@@ -146,7 +146,7 @@ class EmailTest : Spek({
 
         on("updating an email status") {
             it("changes the value in the database") {
-                val email = getUserEmails(user!!).first()
+                val email = getUserEmails(user!!.id).first()
                 email.status = EmailStatus.UNSUBSCRIBED
                 email.save()
 
