@@ -12,7 +12,7 @@ object CONFIGS {
      */
     val DEFAULT_DB_FILE: String by Conf("database.sqlite")
     /** The email address from which the app's communication is coming */
-    val EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com")
+    val EMAIL_FROM: String by Conf("Key Monitor <keymonitor@example.com>")
     /** The email domain, as used by the Mailgun API */
     var EMAIL_DOMAIN: String by Conf()
     /** How often, on average, to look up keys (in minutes) */
