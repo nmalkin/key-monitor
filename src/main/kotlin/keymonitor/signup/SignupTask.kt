@@ -7,6 +7,9 @@ import keymonitor.database.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.time.Instant
+import java.util.logging.Logger
+
+internal val logger = Logger.getLogger("signup")
 
 private val REGISTRATION_SUBJECT = "Welcome to Key Monitor!"
 private val REGISTRATION_MESSAGE = """
@@ -32,9 +35,13 @@ If you did not subscribe to this service, please click the unsubscribe link abov
  * 3. Send them a notification message
  */
 fun run() {
+    val serverNumber = CONFIGS.SIGNAL_PHONE_NUMBER
+    logger.info("using receiver phone number $serverNumber")
+
     // Run signal-cli and wait for it to finish
+    logger.info("receiving messages via signal-cli")
     val process = Runtime.getRuntime()?.exec(arrayOf("signal-cli", "--username",
-            CONFIGS.SIGNAL_PHONE_NUMBER,
+            serverNumber,
             "receive", "--json",
             "--ignore-attachments",
             "--timeout", "1"))
@@ -45,10 +52,13 @@ fun run() {
     var output = BufferedReader(InputStreamReader(process.inputStream))
 
     // Parse the signal-cli output for new subscription messages
+    logger.info("parsing received messages")
     val messages = parseJson(output)
 
     // Process each message
     messages.forEach { message ->
+        logger.info("processing registration message $message")
+
         // Store the new user in the database
         val storedEmail = processRegistration(message)
 
@@ -70,13 +80,19 @@ fun run() {
  * - If the user already exists and so does the email, don't store the email.
  */
 internal fun processRegistration(registration: RegistrationMessage): Email {
+    logger.info("processing registration $registration")
+
     val (phoneNumber, email) = registration
     var user = getUser(phoneNumber)
 
     if (user == null) {
         // This is a new user. Save them to the database.
+        logger.info("This is a new user. Save them to the database.")
+
         user = createUser(phoneNumber)
     } else { // This user already exists.
+        logger.info("This user already exists.")
+
         // If the user is currently deactivated (because they unsubscribed), reactivate them.
         if (user.status == UserStatus.DEACTIVATED) {
             user.status = UserStatus.ACTIVE
@@ -86,6 +102,8 @@ internal fun processRegistration(registration: RegistrationMessage): Email {
         // Is this email already stored?
         getUserEmails(user.id).forEach { existingEmail ->
             if (existingEmail.email == email) {
+                logger.info("email $email is already registered")
+
                 // The requested email already exists in our database and is active.
                 // We don't need to add a new one.
                 return existingEmail

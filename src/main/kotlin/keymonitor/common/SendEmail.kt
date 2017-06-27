@@ -5,6 +5,9 @@ import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.util.logging.Logger
+
+private val logger = Logger.getLogger("email")
 
 private val client = OkHttpClient()
 
@@ -16,6 +19,8 @@ private val client = OkHttpClient()
  * @throws IOException if the API call is unsuccessful, including if authorization fails
  */
 fun sendMessage(email: String, subject: String, body: String) {
+    logger.info("sending email to $email with subject $subject")
+
     val formBody = FormBody.Builder()
             .add("from", CONFIGS.EMAIL_FROM)
             .add("to", email)
@@ -31,7 +36,12 @@ fun sendMessage(email: String, subject: String, body: String) {
             .build()
 
     client.newCall(request).execute().use { response ->
-        if (response.code() == 401) throw IOException("invalid credentials")
-        else if (!response.isSuccessful) throw IOException("Unexpected code " + response)
+        val responseCode = response.code()
+        val responseMessage = response.body()?.string()
+        logger.info("received response (status code $responseCode): $responseMessage")
+
+        if (responseCode == 400) throw IOException("sending email failed: $responseMessage")
+        else if (responseCode == 401) throw IOException("invalid credentials")
+        else if (!response.isSuccessful) throw IOException("unexpected response: $responseMessage")
     }
 }
