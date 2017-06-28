@@ -67,7 +67,7 @@ fun run() {
         // Send confirmation message
         // TODO: this will send a confirmation message even if the email is already in the system
         // This could be good (in case they forgot they signed up) or bad (if we get duplicate messages).
-        val unsubscribeLink = CONFIGS.UNSUBSCRIBE_SERVER + "unsubscribe?t=" + storedEmail.unsubscribeToken
+        val unsubscribeLink = CONFIGS.UNSUBSCRIBE_SERVER + "?t=" + storedEmail.unsubscribeToken
         val text = REGISTRATION_MESSAGE.format(message.phoneNumber, unsubscribeLink)
         sendMessage(storedEmail.email, REGISTRATION_SUBJECT, text)
     }
