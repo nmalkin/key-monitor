@@ -60,7 +60,7 @@ fun main(args: Array<String>) {
         "schedule" -> keymonitor.schedule.run()
         "setup-database" -> keymonitor.database.setup(verbose = true)
         "signup" -> keymonitor.signup.run()
-        "unsubscribe" -> keymonitor.unsubscribe.launch(CONFIGS.UNSUBSCRIBE_PORT.toInt())
+        "unsubscribe" -> keymonitor.unsubscribe.launch(CONFIGS.PORT.toInt())
         else -> commands.usage()
     }
 
