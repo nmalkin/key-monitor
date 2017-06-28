@@ -48,10 +48,9 @@ fun scheduleTaskForUser(user: User, startTime: Instant): LookupTask {
  */
 fun scheduleActiveUsers(startTime: Instant) {
     logger.info("scheduling all active users for period starting at $startTime")
-    getActiveUsers().parallelStream()
-            .map { user ->
-                scheduleTaskForUser(user, startTime)
-            }
+    getActiveUsers().map { user ->
+        scheduleTaskForUser(user, startTime)
+    }
 }
 
 /**
