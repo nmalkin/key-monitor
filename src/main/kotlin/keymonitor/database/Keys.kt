@@ -1,5 +1,6 @@
 package keymonitor.database
 
+import keymonitor.common.logger
 import java.sql.ResultSet
 import java.time.Instant
 
@@ -139,6 +140,8 @@ private val SELECT_ALL_WITH_STATUS = "SELECT * FROM keys where STATUS = ?"
  * Return all keys with the given status
  */
 fun getKeys(status: KeyStatus): Collection<Key> {
+    logger.info("getting all keys with status $status")
+
     val result = with(Database.connection.prepareStatement(SELECT_ALL_WITH_STATUS)) {
         setString(1, status.name)
 
