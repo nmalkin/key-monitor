@@ -32,13 +32,19 @@ fun sendMessage(email: String, subject: String, body: String) {
             .post(formBody)
             .build()
 
+    logger.info("querying the Mailgun API")
+
     client.newCall(request).execute().use { response ->
         val responseCode = response.code()
         val responseMessage = response.body()?.string()
-        logger.info("received response (status code $responseCode): $responseMessage")
 
-        if (responseCode == 400) throw IOException("sending email failed: $responseMessage")
-        else if (responseCode == 401) throw IOException("invalid credentials")
-        else if (!response.isSuccessful) throw IOException("unexpected response: $responseMessage")
+        if (response.isSuccessful) {
+            logger.info("email sent successfully")
+        } else {
+            logger.severe("sending failed (status code $responseCode): $responseMessage")
+
+            if (responseCode == 401) throw IOException("failed to send email: invalid credentials")
+            else throw IOException("failed to send email")
+        }
     }
 }
