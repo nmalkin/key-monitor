@@ -138,7 +138,7 @@ private val SELECT_ALL_WITH_STATUS = "SELECT * FROM keys where STATUS = ?"
 /**
  * Return all keys with the given status
  */
-fun getAll(status: KeyStatus): Collection<Key> {
+fun getKeys(status: KeyStatus): Collection<Key> {
     val result = with(Database.connection.prepareStatement(SELECT_ALL_WITH_STATUS)) {
         setString(1, status.name)
 

@@ -38,6 +38,6 @@ fun checkForChanges(key: Key): KeyChange? {
 
 /** Check all unchecked keys for changes */
 fun run() {
-    val unchecked = getAll(KeyStatus.UNCHECKED)
+    val unchecked = getKeys(KeyStatus.UNCHECKED)
     unchecked.forEach { checkForChanges(it) }
 }

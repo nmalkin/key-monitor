@@ -142,7 +142,7 @@ class KeyTest : Spek({
             key2.status = KeyStatus.CHECKED
             val key3 = saveKey(task, someTime, phoneNumber.toString(), ip, keyValue)
 
-            val newKeys = getAll(KeyStatus.UNCHECKED)
+            val newKeys = getKeys(KeyStatus.UNCHECKED)
 
             it("returns the right keys") {
                 assertTrue(newKeys.contains(key1))
