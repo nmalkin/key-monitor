@@ -53,3 +53,7 @@ run {
         args Eval.me(appArgs)
     }
 }
+
+task stage {
+    dependsOn installDist
+}
