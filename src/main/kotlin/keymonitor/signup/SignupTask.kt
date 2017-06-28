@@ -2,14 +2,13 @@ package keymonitor.signup
 
 import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
+import keymonitor.common.logger
 import keymonitor.common.sendMessage
 import keymonitor.database.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.time.Instant
 import java.util.logging.Logger
-
-internal val logger = Logger.getLogger("signup")
 
 private val REGISTRATION_SUBJECT = "Welcome to Key Monitor!"
 private val REGISTRATION_MESSAGE = """

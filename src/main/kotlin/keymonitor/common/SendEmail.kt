@@ -5,9 +5,6 @@ import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.util.logging.Logger
-
-private val logger = Logger.getLogger("email")
 
 private val client = OkHttpClient()
 

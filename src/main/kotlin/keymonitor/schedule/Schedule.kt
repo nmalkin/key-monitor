@@ -8,6 +8,9 @@ import keymonitor.database.getActiveUsers
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import java.util.logging.Logger
+
+private val logger = Logger.getLogger("schedule")
 
 /** How often, on average, to look up keys (in minutes) */
 val LOOKUP_FREQUENCY = CONFIGS.LOOKUP_FREQUENCY.toInt()
@@ -34,6 +37,8 @@ fun scheduleTaskForUser(user: User, startTime: Instant): LookupTask {
 
     val lookupTime = startTime.plus(Duration.ofMinutes(offset.toLong()))
 
+    logger.info("scheduling lookup for $user at $lookupTime")
+
     val newTask = createTask(user.id, lookupTime)
     return newTask
 }
@@ -42,6 +47,7 @@ fun scheduleTaskForUser(user: User, startTime: Instant): LookupTask {
  * Schedule all active users at the given start time
  */
 fun scheduleActiveUsers(startTime: Instant) {
+    logger.info("scheduling all active users for period starting at $startTime")
     getActiveUsers().parallelStream()
             .map { user ->
                 scheduleTaskForUser(user, startTime)

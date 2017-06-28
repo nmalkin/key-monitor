@@ -1,6 +1,7 @@
 package keymonitor.database
 
 import keymonitor.common.PhoneNumber
+import keymonitor.common.logger
 
 /** Enum representing whether the user's keys should be monitored */
 enum class UserStatus {
@@ -111,10 +112,13 @@ private val SELECT_ACTIVE = "SELECT id FROM users WHERE account_status = '${User
  * Return all users in the database marked as active
  */
 fun getActiveUsers(): Collection<User> {
+    logger.info("looking up all active users")
     val result = Database.connection.createStatement().executeQuery(SELECT_ACTIVE)
     val activeUsers = mutableListOf<User>()
     while (result.next()) {
         val userID = result.getInt("id")
+        logger.info("found active user with id $userID")
+
         val user = getUser(userID) ?: throw DataStateError("user $userID no longer exists")
         activeUsers.add(user)
     }
