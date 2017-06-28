@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import keymonitor.common.CONFIGS
 import keymonitor.common.PhoneNumber
+import keymonitor.common.logger
 import org.whispersystems.libsignal.IdentityKey
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
 import org.whispersystems.signalservice.api.push.TrustStore
@@ -64,7 +65,9 @@ class RealSignalServer(val credentials: CredentialsProvider) : SignalAPI {
      */
     private val trustStore = object : TrustStore {
         override fun getKeyStoreInputStream(): InputStream {
+            logger.info("loading the Signal key store")
             return javaClass.getResourceAsStream("whisper.store")
+                    ?: throw RuntimeException("couldn't load key store")
         }
 
         override fun getKeyStorePassword() = "whisper"
@@ -114,6 +117,8 @@ class RealSignalServer(val credentials: CredentialsProvider) : SignalAPI {
  */
 internal fun loadSignalCredentialsFromFile(serverPhoneNumber: String,
                                            directory: String = "~/.config/signal/data"): CredentialsProvider {
+    logger.info("loading Signal configs for $serverPhoneNumber")
+
     var path = directory + File.separator + serverPhoneNumber
     if (path.startsWith("~" + File.separator)) {
         path = System.getProperty("user.home") + path.substring(1)

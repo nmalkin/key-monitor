@@ -1,5 +1,6 @@
 package keymonitor.database
 
+import keymonitor.common.logger
 import keymonitor.schedule.LOOKUP_INTERVAL
 import java.time.Instant
 
@@ -109,6 +110,7 @@ internal fun pendingTasks(cutoff: Instant = Instant.now()): Collection<LookupTas
  * they will be updated accordingly in the database.
  */
 fun activeTasks(cutoff: Instant = Instant.now()): Collection<LookupTask> {
+    logger.info("querying for active tasks as of $cutoff")
     val pending = pendingTasks(cutoff)
     val active = mutableSetOf<LookupTask>()
     pending.forEach { task ->

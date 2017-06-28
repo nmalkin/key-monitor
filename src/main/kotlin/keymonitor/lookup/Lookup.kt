@@ -1,6 +1,7 @@
 package keymonitor.lookup
 
 import keymonitor.common.CONFIGS
+import keymonitor.common.logger
 import keymonitor.database.*
 import java.time.Instant
 
@@ -10,16 +11,20 @@ import java.time.Instant
  * At the end, the task will be marked as completed
  */
 fun performLookup(task: LookupTask, api: SignalAPI): Key {
+    logger.info("processing lookup task $task")
+
     // Figure out the number we need to look up
     val user = getUser(task.userID)
             ?: throw DataStateError("invalid user ${task.userID} in task $task")
     val number = user.phoneNumber
 
     // Perform the lookup
+    logger.info("looking up key for $number")
     val rawKeys = api.lookup(number)
 
     // Note that we record the lookup time *after* the lookup returns
     val lookupTime = Instant.now()
+    logger.info("key lookup complete at $lookupTime. saving the key.")
 
     // Save the new key value to the database
     val key = saveKey(task,
