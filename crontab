@@ -1,0 +1,22 @@
+# m   h   dom mon dow   command
+# *   *   *   *   *     command to be executed
+# -   -   -   -   -
+# |   |   |   |   |
+# |   |   |   |   +----- day of week (0 - 6) (Sunday=0)
+# |   |   |   +------- month (1 - 12)
+# |   |   +--------- day of month (1 - 31)
+# |   +----------- hour (0 - 23)
+# +----------- min (0 - 59)
+
+
+# Once an hour
+
+# Every minute
+0 * * * * . $HOME/production.sh; $HOME/build/install/key-monitor/bin/key-monitor schedule >> /var/log/keymonitor/schedule.log 2>&1
+* * * * * . $HOME/production.sh; $HOME/build/install/key-monitor/bin/key-monitor signup   >> /var/log/keymonitor/signup.log   2>&1
+* * * * * . $HOME/production.sh; $HOME/build/install/key-monitor/bin/key-monitor lookup   >> /var/log/keymonitor/lookup.log   2>&1
+* * * * * . $HOME/production.sh; $HOME/build/install/key-monitor/bin/key-monitor check    >> /var/log/keymonitor/check.log    2>&1
+* * * * * . $HOME/production.sh; $HOME/build/install/key-monitor/bin/key-monitor notify   >> /var/log/keymonitor/notify.log   2>&1
+
+# Line below intentionally left blank
+
