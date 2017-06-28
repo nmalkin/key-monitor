@@ -88,7 +88,7 @@ internal fun pendingTasks(cutoff: Instant = Instant.now()): Collection<LookupTas
         executeQuery()
     }
 
-    val tasks = mutableSetOf<LookupTask>()
+    val tasks = mutableListOf<LookupTask>()
     while (result.next()) {
         val taskID = result.getInt("id")
 
@@ -112,7 +112,7 @@ internal fun pendingTasks(cutoff: Instant = Instant.now()): Collection<LookupTas
 fun activeTasks(cutoff: Instant = Instant.now()): Collection<LookupTask> {
     logger.info("querying for active tasks as of $cutoff")
     val pending = pendingTasks(cutoff)
-    val active = mutableSetOf<LookupTask>()
+    val active = mutableListOf<LookupTask>()
     pending.forEach { task ->
         if (task.pastExpiration(cutoff)) {
             task.status = LookupTaskStatus.EXPIRED
