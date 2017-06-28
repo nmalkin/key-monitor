@@ -1,5 +1,6 @@
 package keymonitor.notify
 
+import keymonitor.common.logger
 import keymonitor.common.sendMessage
 import keymonitor.database.*
 import java.time.Instant
@@ -23,6 +24,8 @@ Your friends at Key Monitor
  * Send a notification email to all active emails associated with the changed account
  */
 fun notify(change: KeyChange): Collection<Notification> {
+    logger.info("sending notification for change $change")
+
     val userID = change.userID
 
     val user = getUser(userID)

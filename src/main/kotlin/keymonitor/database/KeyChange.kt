@@ -1,5 +1,6 @@
 package keymonitor.database
 
+import keymonitor.common.logger
 import java.time.Instant
 
 val CREATE_CHANGE_TABLE =
@@ -71,6 +72,7 @@ private val SELECT_ALL_NEW = "SELECT * FROM changes where STATUS = '${KeyChangeS
  * Return all key changes with the status of KeyChangeStatus.NEW
  */
 fun getAllNewChanges(): Collection<KeyChange> {
+    logger.info("retrieving new changes")
     val result = Database.connection.prepareStatement(SELECT_ALL_NEW).executeQuery()
 
     val changes = mutableListOf<KeyChange>()
