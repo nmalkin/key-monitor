@@ -77,16 +77,7 @@ Data from all the services will be stored in separate tables of a single common 
 
 The data model (see above) was designed to favor appending records rather than updating or overwriting existing ones. This approach is preferred for maintainability, ease of synchronization, debugging, and recovering from errors.
 
-In addition to the 6 tables identified above, there will be one more, storing the cursors representing the current state of the component services.
-
-#### cursors
-
-- scheduling service cursor - the hour for which the scheduler last generated lookup tasks
-- key lookup service cursor - the last executed lookup task
-- change detection service cursor - the last key analyzed for change detection
-- notification service cursor - last detected change notified about
-
-Note that while other records could serve as cursors for some of these (e.g., you could look at the last sent notification instead of storing a separate notification service cursor), having a separate cursor allows for finer-grained control, making it easier to skip problematic records, replay, or "fast forward."
+Additionally, the tables identified above have a `status` field representing the current state of the record (i.e., whether or not it has been processed or not).
 
 # Service architecture
 
